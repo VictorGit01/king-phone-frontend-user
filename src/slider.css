@@ -1,0 +1,20 @@
+.main-slider .swiper-pagination-bullets {
+  bottom: 1.5rem;
+}
+
+.main-slider .swiper-pagination-bullet,
+.product-slider .swiper-pagination-bullet {
+  background: #F6CD46;
+}
+
+.product-slider .swiper-button-prev::after {
+  font-size: 2rem;
+}
+
+.product-slider .swiper-button-prev::after,
+.product-slider .swiper-button-next::after {
+  font-size: 2rem;
+  color: #F6CD46;
+  padding: 2rem;
+  width: 200px;
+}
