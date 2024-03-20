@@ -77,7 +77,7 @@ button:focus-visible {
     @apply font-primary bg-body text-white;
   }
   .h2 {
-    @apply text-3xl captalize;
+    @apply text-3xl capitalize;
   }
   .grad {
     @apply bg-gradient-to-t from-[#1F2126] to-[#33363D] drop-shadow-2xl;

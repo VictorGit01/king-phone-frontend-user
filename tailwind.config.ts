@@ -1,15 +1,16 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./src/**/*.{html,js}"],
+  // content: ["./**/*.{html, cjs}", "./src/**/*.{js, jsx, ts, tsx}"],
+  content: ["./src/**/*.tsx"],
   darkMode: 'class',
   theme: {
     fontFamily: {
       primary: '"Exo 2"',
     },
     container: {
-      center: true,
+      // center: true,
       padding: {
-        // DEFAULT: '15px'
+        // DEFAULT: '15px',
         DEFAULT: '1rem',
         sm: '3rem'
       }
