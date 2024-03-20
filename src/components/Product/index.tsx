@@ -28,7 +28,8 @@ export const Product = ({ product }: { product: Product }) => {
         <div className="w-full h-[200px] flex items-center justify-center relative">
           <img
             className="max-w-[160px] max-h-[160px] group-hover:scale-90 transition-all"
-            src={`http://localhost:5173${product.image_url}`}
+            // src={`http://localhost:5173${product.image_url}`}
+            src={product.image_url}
             alt=""
           />
         </div>
