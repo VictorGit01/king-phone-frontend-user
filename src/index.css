@@ -83,7 +83,7 @@ button:focus-visible {
     @apply bg-gradient-to-t from-[#1F2126] to-[#33363D] drop-shadow-2xl;
   }
   .button {
-    @apply h-[50px] flex justify-content-center items-center rounded-[8px] px-10 py-[10px] text-sm uppercase font-bold;
+    @apply h-[50px] flex justify-center items-center rounded-[8px] px-10 py-[10px] text-sm uppercase font-bold;
   }
   .button-accent {
     @apply bg-accent text-primary hover:bg-accent-hover transition-all;

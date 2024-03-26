@@ -12,14 +12,18 @@ module.exports = {
       padding: {
         // DEFAULT: '15px',
         DEFAULT: '1rem',
-        sm: '3rem'
+        // sm: '3rem'
       }
     },
     screens: {
+      xs: '320',
+      xssm: '360',
       sm: '640px',
       md: '768px',
       lg: '960px',
-      xl: '1440px',
+      lgxl: '1024px',
+      xl: '1360px',
+      xxl: '1410px',
     },
     extend: {
       colors: {
