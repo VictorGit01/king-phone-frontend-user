@@ -47,7 +47,7 @@ export const ProductDetails = () => {
         <div className="flex flex-col lg:flex-row gap-[30px] mb-[30px]">
           <div className="flex-1 lg:max-w-[40%] lg:h-[540px] grad rounded-lg flex justify-center items-center">
             <img
-              src={`http://localhost:5173/${product?.image_url}`}
+              src={product?.image_url}
               className="w-full max-w-[65%]"
               alt={product.title}
             />
@@ -62,9 +62,10 @@ export const ProductDetails = () => {
             {/* description */}
             <p className="mb-12">{product.description}</p>
             {/* price & button */}
-            <div className="flex items-center gap-x-8">
+            {/* <div className="flex items-center gap-x-8"> */}
+            <div className="grid items-center grid-cols-1 md:grid-cols-2 gap-x-8">
               {/* price */}
-              <p className="text-2xl text-accent font-semibold text-nowrap">
+              <p className="text-2xl text-accent font-semibold text-nowrap mb-5 md:mb-0">
                 {formattedPrice}
               </p>
               <button className="button button-accent">
