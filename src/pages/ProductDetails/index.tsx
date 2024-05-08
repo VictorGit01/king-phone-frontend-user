@@ -1,5 +1,80 @@
-import React from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+
+import { RelatedProducts } from "../../components/RelatedProducts";
+
+import { CartContext } from "../../contexts/CartContext";
+
+import { products } from "../../services/products";
+
+interface IProduct {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category: string;
+  category_id: string;
+  is_new: boolean;
+}
 
 export const ProductDetails = () => {
-  return <div>ProductDetails</div>;
+  const [product, setProduct] = useState<IProduct>();
+
+  const { id } = useParams();
+
+  let formattedPrice = `R$ ${product?.price.toLocaleString("pt-br", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+  useEffect(() => {
+    const productFound = products.find((product) => product.id === id);
+
+    setTimeout(() => {
+      setProduct(productFound);
+    }, 2000);
+  }, []);
+
+  if (!product) {
+    return <div className="container mx-auto">Carregando...</div>;
+  }
+
+  return (
+    <div className="mb-16 pt-44 lg:pt-[30px] xl:pt-0">
+      <div className="container mx-auto">
+        {/* text */}
+        <div className="flex flex-col lg:flex-row gap-[30px] mb-[30px]">
+          <div className="flex-1 lg:max-w-[40%] lg:h-[540px] grad rounded-lg flex justify-center items-center">
+            <img
+              src={`http://localhost:5173/${product?.image_url}`}
+              className="w-full max-w-[65%]"
+              alt={product.title}
+            />
+          </div>
+          <div className="flex-1 bg-primary p-12 xl:p-20 rounded-lg flex flex-col justify-center">
+            {/* category title */}
+            <div className="uppercase text-accent text-lg font-medium mb-2">
+              {product.category}
+            </div>
+            {/* title */}
+            <h2 className="h2 mb-4">{product.title}</h2>
+            {/* description */}
+            <p className="mb-12">{product.description}</p>
+            {/* price & button */}
+            <div className="flex items-center gap-x-8">
+              {/* price */}
+              <p className="text-2xl text-accent font-semibold text-nowrap">
+                {formattedPrice}
+              </p>
+              <button className="button button-accent">
+                Adicionar ao carrinho
+              </button>
+            </div>
+          </div>
+        </div>
+        <RelatedProducts category={product.category} />
+      </div>
+    </div>
+  );
 };

@@ -12,6 +12,7 @@ export const products = [
     price: 1439.10,
     image_url: iphoneXRImg,
     category: 'Smartphones',
+    category_id: '1',
     is_new: true
   },
   {
@@ -21,6 +22,7 @@ export const products = [
     price: 8499,
     image_url: iphone15ProMaxImg,
     category: 'Smartphones',
+    category_id: '1',
     is_new: true
   },
   {
@@ -30,6 +32,7 @@ export const products = [
     price: 75,
     image_url: smartwatchW26,
     category: 'Dispositivos vestíveis',
+    category_id: '3',
     is_new: true
   },
   {
@@ -39,6 +42,7 @@ export const products = [
     price: 2498,
     image_url: iphoneXSImg,
     category: 'Smartphones',
+    category_id: '1',
     is_new: true
   },
   {
@@ -48,6 +52,7 @@ export const products = [
     price: 199.90,
     image_url: headphoneJBLE40BT,
     category: 'Fones de ouvido',
+    category_id: '2',
     is_new: true
   },
 ];

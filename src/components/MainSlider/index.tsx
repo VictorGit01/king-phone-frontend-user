@@ -4,7 +4,7 @@ import "swiper/css/navigation";
 import "../../slider.css";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
+import { Pagination, Autoplay } from "swiper/modules";
 
 import iphoneImg from "../../assets/images/iphone-14.png";
 
@@ -38,10 +38,14 @@ const sliderData = [
 export const MainSlider = () => {
   return (
     <Swiper
-      modules={[Pagination]}
+      modules={[Pagination, Autoplay]}
       loop={true}
       pagination={{
         clickable: true,
+      }}
+      autoplay={{
+        delay: 3500,
+        disableOnInteraction: false,
       }}
       // className="
       //   main-slider
