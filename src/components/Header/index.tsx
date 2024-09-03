@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 
 import logo from "../../assets/images/logo.svg";
@@ -8,16 +9,10 @@ import { FiMenu } from "react-icons/fi";
 import { SearchForm } from "../SearchForm";
 import { CategoryNavMobile } from "../CategoryNavMobile";
 import { Cart } from "../Cart";
-import React, { useContext, useState } from "react";
 import { CartContext } from "../../contexts/CartContext";
 
-interface CartContextType {
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
 export const Header = () => {
-  const { isOpen, setIsOpen } = useContext<CartContextType>(CartContext);
+  const { isOpen, setIsOpen, productsAmount } = useContext(CartContext);
   const [catNavMobile, setCatNavMobile] = useState(false);
 
   return (
@@ -67,7 +62,7 @@ export const Header = () => {
               <SlBag className="text-2l" />
               {/* amount */}
               <div className="bg-accent text-primary absolute w-[18px] h-[18px] rounded-full top-3 -right-1 text-[13px] flex justify-center items-center font-bold tracking-[-0.1em]">
-                2
+                {productsAmount}
               </div>
             </div>
             {/* cart */}

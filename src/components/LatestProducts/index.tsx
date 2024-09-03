@@ -8,7 +8,7 @@ export const LatestProducts = () => {
       <div className="container mx-auto">
         <h2 className="h2 mb-6 text-center xl:text-left">Últimos Produtos</h2>
       </div>
-      <ProductSlider data={products} />
+      <ProductSlider data={products} latestProducts={true} />
     </div>
   );
 };

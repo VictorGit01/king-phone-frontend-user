@@ -1,26 +1,26 @@
 export const categories = [
   {
-    id: '1',
+    id: '1c',
     name: 'Smartphones'
   },
   {
-    id: '2',
+    id: '2c',
     name: 'Fones de ouvido'
   },
   {
-    id: '3',
+    id: '3c',
     name: 'Dispositivos vestíveis'
   },
   {
-    id: '4',
+    id: '4c',
     name: 'Carregadores'
   },
   {
-    id: '5',
+    id: '5c',
     name: 'Assistentes virtuais'
   },
   {
-    id: '6',
+    id: '6c',
     name: 'Customização'
   },
 ];

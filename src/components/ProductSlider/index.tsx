@@ -18,7 +18,13 @@ interface Product {
   is_new: boolean;
 }
 
-export const ProductSlider = ({ data }: { data: Array<Product> }) => {
+export const ProductSlider = ({
+  data,
+  latestProducts,
+}: {
+  data: Array<Product>;
+  latestProducts: boolean;
+}) => {
   return (
     <Swiper
       modules={[Pagination, Navigation]}
@@ -57,6 +63,9 @@ export const ProductSlider = ({ data }: { data: Array<Product> }) => {
       "
     >
       {data?.map((product) => {
+        if (latestProducts && !product.is_new) {
+          return;
+        }
         return (
           <SwiperSlide key={product.id}>
             <Product product={product} />

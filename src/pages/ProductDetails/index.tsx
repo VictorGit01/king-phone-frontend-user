@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { RelatedProducts } from "../../components/RelatedProducts";
 
 import { CartContext } from "../../contexts/CartContext";
+import { ValueContext } from "../../contexts/ValueContext";
 
 import { products } from "../../services/products";
 
@@ -19,25 +20,33 @@ interface IProduct {
 }
 
 export const ProductDetails = () => {
-  const [product, setProduct] = useState<IProduct>();
+  const { addToCart } = useContext(CartContext);
+  const { formattedPrice } = useContext(ValueContext);
+  const [product, setProduct] = useState<IProduct | null>();
 
   const { id } = useParams();
 
-  let formattedPrice = `R$ ${product?.price.toLocaleString("pt-br", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  // let formattedPrice = `R$ ${product?.price.toLocaleString("pt-br", {
+  //   minimumFractionDigits: 2,
+  //   maximumFractionDigits: 2,
+  // })}`;
 
   useEffect(() => {
+    setProduct(null);
+
     const productFound = products.find((product) => product.id === id);
 
     setTimeout(() => {
       setProduct(productFound);
-    }, 2000);
-  }, []);
+    }, 3000);
+  }, [id]);
 
   if (!product) {
-    return <div className="container mx-auto">Carregando...</div>;
+    return (
+      <div className="flex flex-col min-h-screen min-w-screen justify-center items-center">
+        <p className="h2">Carregando...</p>
+      </div>
+    );
   }
 
   return (
@@ -66,9 +75,12 @@ export const ProductDetails = () => {
             <div className="grid items-center grid-cols-1 md:grid-cols-2 gap-x-8">
               {/* price */}
               <p className="text-2xl text-accent font-semibold text-nowrap mb-5 md:mb-0">
-                {formattedPrice}
+                {formattedPrice(product.price)}
               </p>
-              <button className="button button-accent">
+              <button
+                onClick={() => addToCart(product, String(id))}
+                className="button button-accent"
+              >
                 Adicionar ao carrinho
               </button>
             </div>

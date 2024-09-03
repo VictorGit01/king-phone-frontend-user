@@ -1,4 +1,7 @@
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+
+import { ValueContext } from "../../contexts/ValueContext";
 
 interface Product {
   id: string;
@@ -11,10 +14,12 @@ interface Product {
 }
 
 export const Product = ({ product }: { product: Product }) => {
-  let formattedPrice = product.price.toLocaleString("pt-br", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  const { formattedPrice } = useContext(ValueContext);
+
+  // let formattedPrice = product.price.toLocaleString("pt-br", {
+  //   minimumFractionDigits: 2,
+  //   maximumFractionDigits: 2,
+  // });
 
   return (
     <Link to={`/product/${product.id}`}>
@@ -43,7 +48,9 @@ export const Product = ({ product }: { product: Product }) => {
             {product.title.substring(0, 35)}...
           </div>
 
-          <div className="text-lg text-accent">R$ {formattedPrice}</div>
+          <div className="text-lg text-accent">
+            {formattedPrice(product.price)}
+          </div>
         </div>
       </div>
     </Link>
