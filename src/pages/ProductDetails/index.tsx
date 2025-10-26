@@ -211,8 +211,6 @@ export const ProductDetails = () => {
             </div>
             {/* title */}
             <h2 className="h2 mb-4">{product.title}</h2>
-            {/* description */}
-            <p className="mb-8">{product.description}</p>
             
             {/* stock quantity */}
             <div className="mb-8">
@@ -310,6 +308,13 @@ export const ProductDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Description section - full width below the cards */}
+        <div className="bg-primary p-8 xl:p-12 rounded-lg mb-[30px]">
+          <h3 className="text-xl font-semibold text-accent mb-4">Descrição do Produto</h3>
+          <p className="text-white/90 leading-relaxed whitespace-pre-line">{product.description}</p>
+        </div>
+
         <RelatedProducts category={product.category} currentProductId={String(id)} />
       </div>
     </div>

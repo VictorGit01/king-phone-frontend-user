@@ -3,6 +3,7 @@ import { usePromotions } from "../../hooks/useFetch";
 import { Product } from "../../components/Product";
 import { useProducts } from "../../hooks/useFetch";
 import { Link } from "react-router-dom";
+import { categoryIdToName } from "../../utils/categoryMapping";
 
 export const Promotions = () => {
   const { promotions, loading: promotionsLoading } = usePromotions();
@@ -60,10 +61,12 @@ export const Promotions = () => {
           const product = allProducts.find(p => p.id === promotion.product_id);
           return `${promotion.discount_percent}% OFF em ${product?.title || 'produto selecionado'}`;
         case 'category':
-          return `${promotion.discount_percent}% OFF em ${promotion.target_category}`;
+          const categoryName = categoryIdToName(promotion.target_category);
+          return `${promotion.discount_percent}% OFF em ${categoryName}`;
         case 'buy_x_get_y':
           const totalItems = (promotion.min_quantity || 3) + (promotion.get_quantity || 1);
-          return `Leve ${totalItems} ${promotion.target_category} e pague apenas ${promotion.min_quantity || 3}!`;
+          const categoryNameBuyX = categoryIdToName(promotion.target_category);
+          return `Leve ${totalItems} ${categoryNameBuyX} e pague apenas ${promotion.min_quantity || 3}!`;
         case 'combo':
           return `Combo especial com ${promotion.discount_percent}% OFF`;
         case 'conditional':
@@ -78,7 +81,9 @@ export const Promotions = () => {
         return `/products/${promotion.product_id}`;
       }
       if (promotion.target_category) {
-        return `/products?category=${encodeURIComponent(promotion.target_category)}`;
+        // Converter ID para nome antes de criar a URL
+        const categoryName = categoryIdToName(promotion.target_category);
+        return `/products?category=${encodeURIComponent(categoryName)}`;
       }
       return '/products';
     };

@@ -6,6 +6,25 @@
  * conforme definido em src/database/categories.ts
  */
 
+// Mapeamento de IDs de categoria para nomes
+export const CATEGORY_ID_TO_NAME: { [key: string]: string } = {
+  '1c': 'Smartphones',
+  '2c': 'Notebooks e Desktops',
+  '3c': 'Adaptadores',
+  '4c': 'Cabos',
+  '5c': 'Caixas de Som',
+  '6c': 'Capinhas',
+  '7c': 'Carregadores Completos',
+  '8c': 'Carregadores Portáteis',
+  '9c': 'Fones Bluetooth',
+  '10c': 'Fones de Ouvido Com Fio',
+  '11c': 'Fontes de Carregamento',
+  '12c': 'Smartwatches',
+  '13c': 'Suportes',
+  '14c': 'Películas',
+  '15c': 'Variedades',
+};
+
 export const CATEGORY_ALIASES: { [key: string]: string } = {
   // ============================================
   // CATEGORIAS PRINCIPAIS (15 categorias padronizadas no PLURAL)
@@ -141,12 +160,26 @@ export const CATEGORY_ALIASES: { [key: string]: string } = {
 };
 
 /**
+ * Converte ID de categoria para nome
+ * @param categoryId - ID da categoria (ex: '1c', '2c')
+ * @returns Nome da categoria (ex: 'Smartphones', 'Notebooks e Desktops')
+ */
+export function categoryIdToName(categoryId: string): string {
+  if (!categoryId) return categoryId;
+  return CATEGORY_ID_TO_NAME[categoryId] || categoryId;
+}
+
+/**
  * Normaliza o nome de uma categoria para o formato padrão
  * @param category - Nome da categoria a ser normalizado
  * @returns Nome da categoria no formato padrão ou a própria categoria se não houver alias
  */
 export function normalizeCategory(category: string): string {
   if (!category) return category;
+  
+  // Primeiro tenta converter se for um ID
+  const fromId = categoryIdToName(category);
+  if (fromId !== category) return fromId;
   
   const lowerCategory = category.toLowerCase().trim();
   return CATEGORY_ALIASES[lowerCategory] || category;

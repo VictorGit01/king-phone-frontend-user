@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import promoImg1 from "../../assets/images/iphone-13-pro.png";
 import promoImg2 from "../../assets/images/jbl-xtreme.png";
 import { usePromotions, useProducts } from "../../hooks/useFetch";
+import { categoryIdToName } from "../../utils/categoryMapping";
 
 export const Hero = () => {
   const { promotions } = usePromotions();
@@ -24,23 +25,14 @@ export const Hero = () => {
         break;
       case 'category':
         if (promotion.target_category) {
-          // Mapeamento simplificado para compatibilidade com promoções antigas
-          const categoryMapping: { [key: string]: string } = {
-            'smartphone': 'Smartphones',
-            'headphone': 'Fones de ouvido',
-            'smartwatch': 'Dispositivos vestíveis',
-            'charger': 'Carregadores',
-            'assistant': 'Assistentes virtuais',
-            'customization': 'Customização'
-          };
-          
-          const mappedCategory = categoryMapping[promotion.target_category] || promotion.target_category;
+          // Converter ID de categoria para nome
+          const categoryName = categoryIdToName(promotion.target_category);
           console.log('🎯 Redirecionando para categoria:', { 
             original: promotion.target_category, 
-            mapped: mappedCategory 
+            mapped: categoryName 
           });
           
-          navigate(`/products?category=${encodeURIComponent(mappedCategory)}`);
+          navigate(`/products?category=${encodeURIComponent(categoryName)}`);
         } else {
           navigate('/products');
         }
@@ -48,18 +40,9 @@ export const Hero = () => {
       case 'buy_x_get_y':
         // Para promoções "compre X leve Y", navegar para produtos da categoria alvo
         if (promotion.target_category) {
-          // Mapeamento simplificado para compatibilidade com promoções antigas
-          const categoryMapping: { [key: string]: string } = {
-            'smartphone': 'Smartphones',
-            'headphone': 'Fones de ouvido',
-            'smartwatch': 'Dispositivos vestíveis',
-            'charger': 'Carregadores',
-            'assistant': 'Assistentes virtuais',
-            'customization': 'Customização'
-          };
-          
-          const mappedCategory = categoryMapping[promotion.target_category] || promotion.target_category;
-          navigate(`/products?category=${encodeURIComponent(mappedCategory)}&promo=buy_x_get_y`);
+          // Converter ID de categoria para nome
+          const categoryName = categoryIdToName(promotion.target_category);
+          navigate(`/products?category=${encodeURIComponent(categoryName)}&promo=buy_x_get_y`);
         } else {
           navigate('/products?promo=buy_x_get_y');
         }
