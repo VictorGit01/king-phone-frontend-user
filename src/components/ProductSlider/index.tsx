@@ -23,7 +23,7 @@ export const ProductSlider = ({
   latestProducts,
 }: {
   data: Array<Product>;
-  latestProducts: boolean;
+  latestProducts?: boolean;
 }) => {
   return (
     <Swiper

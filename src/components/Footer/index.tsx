@@ -29,6 +29,9 @@ export const Footer = () => {
         </form>
         {/* links */}
         <div className="text-base text-white/60 flex gap-x-6 capitalize max-w-max mx-auto mb-9">
+          <a href="/contact" className="hover:text-white transition-all">
+            Contatos
+          </a>
           <a href="#" className="hover:text-white transition-all">
             Política de devolução
           </a>

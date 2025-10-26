@@ -18,3 +18,25 @@
   padding: 2rem;
   width: 200px;
 }
+
+/* Estilos específicos para banners customizados (não o estático) */
+.main-slider .swiper-slide [style*="maxHeight: 250px"] {
+  overflow: hidden !important;
+  position: relative;
+}
+
+.main-slider .swiper-slide [style*="maxHeight: 250px"] img {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+/* Garantir que o contêiner do slide tenha altura controlada */
+.main-slider .swiper-wrapper {
+  align-items: stretch;
+}
+
+/* Box-sizing para cálculos precisos */
+.main-slider * {
+  box-sizing: border-box;
+}

@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 
 import { ValueContext } from "../../contexts/ValueContext";
+import { usePromotion } from "../../hooks/usePromotion";
 
 interface Product {
   id: string;
@@ -15,6 +16,15 @@ interface Product {
 
 export const Product = ({ product }: { product: Product }) => {
   const { formattedPrice } = useContext(ValueContext);
+  const promotion = usePromotion(product.id, product.price, product.category);
+
+  // Debug log (comentado para reduzir poluição)
+  // console.log('🛍️ Product Component:', {
+  //   productId: product.id,
+  //   productCategory: product.category,
+  //   productPrice: product.price,
+  //   promotion
+  // });
 
   // let formattedPrice = product.price.toLocaleString("pt-br", {
   //   minimumFractionDigits: 2,
@@ -27,6 +37,11 @@ export const Product = ({ product }: { product: Product }) => {
         {product.is_new && (
           <div className="absolute bg-accent text-primary text-[12px] font-extrabold uppercase top-4 right-4 px-2 rounded-full z-10">
             novo
+          </div>
+        )}
+        {promotion.hasDiscount && (
+          <div className="absolute bg-red-500 text-white text-[12px] font-extrabold uppercase top-4 left-4 px-2 rounded-full z-10">
+            -{promotion.discountPercentage}%
           </div>
         )}
 
@@ -48,8 +63,21 @@ export const Product = ({ product }: { product: Product }) => {
             {product.title.substring(0, 35)}...
           </div>
 
-          <div className="text-lg text-accent">
-            {formattedPrice(product.price)}
+          <div className="flex flex-col">
+            {promotion.hasDiscount ? (
+              <>
+                <div className="text-lg text-accent font-semibold">
+                  {formattedPrice(promotion.discountedPrice)}
+                </div>
+                <div className="text-sm text-gray-400 line-through">
+                  {formattedPrice(promotion.originalPrice)}
+                </div>
+              </>
+            ) : (
+              <div className="text-lg text-accent">
+                {formattedPrice(product.price)}
+              </div>
+            )}
           </div>
         </div>
       </div>

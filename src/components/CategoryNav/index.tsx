@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { categories } from "../../services/categories";
+import { categories } from "../../database/categories";
 
 export const CategoryNav = () => {
   return (

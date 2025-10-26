@@ -1,6 +1,7 @@
-import { ChangeEventHandler, FC, useContext, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 
 import { CartContext } from "../../contexts/CartContext";
+import { useProducts } from "../../hooks/useFetch";
 
 interface IProduct {
   id: string;
@@ -19,8 +20,12 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
   setIsOpenPopUp,
 }) => {
   const { cart, setCart, setProductsAmount } = useContext(CartContext);
+  const { data: products } = useProducts();
 
   const [amount, setAmount] = useState(product.amount);
+
+  // Get current product stock from API
+  const currentProductStock = products?.find(p => p.id === product.id)?.quantity || 0;
 
   useEffect(() => {
     cart.map((item) => {
@@ -30,67 +35,65 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
     });
   }, [cart]);
 
-  const handleChangeInput: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = parseInt(e.target.value);
-    const cartProduct = cart.find((item) => {
-      return item.id === product.id;
-    });
-
-    if (value < 0 || isNaN(value)) {
+  const incrementAmount = () => {
+    const newValue = Number(amount) + 1;
+    if (newValue > currentProductStock) {
+      alert(`Só temos ${currentProductStock} unidades disponíveis em estoque`);
       return;
     }
+    updateCartAmount(newValue);
+  };
 
-    if (value === 0) {
+  const decrementAmount = () => {
+    const newValue = Number(amount) - 1;
+    if (newValue === 0) {
       return setIsOpenPopUp(true);
     }
+    if (newValue >= 1) {
+      updateCartAmount(newValue);
+    }
+  };
 
+  const updateCartAmount = (value: number) => {
+    const cartProduct = cart.find((item) => item.id === product.id);
+    
     if (cartProduct) {
       const updatedCart = cart.map((item) => {
         if (item.id === product.id) {
           setProductsAmount(value);
           return { ...item, amount: value };
         }
-
         return item;
       });
-
       setCart(updatedCart);
     }
     setAmount(value);
   };
 
   return (
-    <div className="flex gap-x-6 items-center text-primary">
-      {/* {Number(product.amount) > 10 ? (
-        <select
-          value={product.amount}
-          className="p-2 rounded-lg w-[100px] h-12 outline-none text-primary"
+    <div className="flex gap-x-2 items-center text-white">
+      <div className="flex items-center border border-gray-600 rounded-lg overflow-hidden bg-white">
+        <button
+          onClick={decrementAmount}
+          disabled={Number(amount) <= 1}
+          className="px-3 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 transition-colors text-white"
         >
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10+</option>
-        </select>
-      ) : (
-        <input
-          className="text-primary placeholder:text-primary h-12 rounded-md p-4 w-[120px] outline-accent"
-          type="text"
-          // placeholder={`${product.amount}`}
-        />
-      )} */}
-      <input
-        className="text-primary placeholder:text-primary h-12 rounded-md p-4 w-[120px] outline-accent"
-        type="number"
-        value={amount}
-        onChange={handleChangeInput}
-        // placeholder={`${product.amount}`}
-      />
+          -
+        </button>
+        <span className="px-4 py-2 bg-gray-800 text-white min-w-[50px] text-center border-x border-gray-600">
+          {amount}
+        </span>
+        <button
+          onClick={incrementAmount}
+          disabled={Number(amount) >= currentProductStock}
+          className="px-3 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 transition-colors text-white"
+        >
+          +
+        </button>
+      </div>
+      <span className="text-xs text-gray-400">
+        Máx: {currentProductStock}
+      </span>
     </div>
   );
 };

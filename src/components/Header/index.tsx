@@ -39,21 +39,35 @@ export const Header = () => {
           <Link to={"/"}>
             <img
               // className="h-10"
-              className="h-[1.6rem] md:h-7 xl:h-7 lg:h-7 xxl:h-8"
+              className="h-7 md:h-8 xl:h-9 lg:h-9 xxl:h-10"
               src={logo}
               alt=""
             />
           </Link>
           {/* searchform - show only on desktop */}
-          <div className="hidden w-full xl:flex xl:max-w-[734px]">
+          <div className="hidden w-full xl:flex xl:max-w-[600px]">
             <SearchForm />
           </div>
-          {/* phone & cart */}
+          {/* navigation & cart */}
           <div className="flex items-center gap-x-[10px]">
-            {/* phone */}
-            <div className="hidden xl:flex uppercase">
-              Precisa de ajuda? +55 61 99285-4599
-            </div>
+            {/* navigation menu */}
+            <nav className="hidden xl:flex items-center gap-x-6 uppercase text-sm font-medium mr-8">
+              <Link to="/" className="hover:text-accent transition-colors">
+                Início
+              </Link>
+              <span className="text-gray-500">|</span>
+              <Link to="/products" className="hover:text-accent transition-colors">
+                Produtos
+              </Link>
+              <span className="text-gray-500">|</span>
+              <Link to="/promotions" className="hover:text-accent transition-colors">
+                Promoções
+              </Link>
+              <span className="text-gray-500">|</span>
+              <Link to="/contact" className="hover:text-accent transition-colors">
+                Contato
+              </Link>
+            </nav>
             {/* cart icon */}
             <div
               onClick={() => setIsOpen(!isOpen)}

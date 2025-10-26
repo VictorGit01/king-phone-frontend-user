@@ -5,6 +5,8 @@ import { Home } from "./pages/Home";
 import { Products } from "./pages/Products";
 import { ProductDetails } from "./pages/ProductDetails";
 import { Search } from "./pages/Search";
+import { Promotions } from "./pages/Promotions";
+import Contatos from "./pages/Contatos";
 
 // Components
 import { Header } from "./components/Header";
@@ -25,9 +27,12 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <Home /> },
+      { path: "/products", element: <Products /> },
       { path: "/products/:id", element: <Products /> },
       { path: "/product/:id", element: <ProductDetails /> },
+      { path: "/promotions", element: <Promotions /> },
       { path: "/search", element: <Search /> },
+      { path: "/contact", element: <Contatos /> },
     ],
   },
 ]);

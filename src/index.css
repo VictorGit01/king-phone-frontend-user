@@ -100,4 +100,20 @@ button:focus-visible {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Swiper customization */
+  .swiper-pagination-bullet {
+    @apply bg-white opacity-50;
+  }
+  .swiper-pagination-bullet-active {
+    @apply bg-accent opacity-100;
+  }
+  .swiper-button-next,
+  .swiper-button-prev {
+    @apply text-accent;
+  }
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    @apply text-sm;
+  }
 }

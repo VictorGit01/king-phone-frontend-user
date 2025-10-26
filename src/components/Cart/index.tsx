@@ -7,16 +7,48 @@ import { BuildPopUp } from "../BuildPopUp";
 
 import { CartContext } from "../../contexts/CartContext";
 import { ValueContext } from "../../contexts/ValueContext";
+import { Link } from "react-router-dom";
 
 interface CartContextType {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const Cart = ({ setIsOpen }: CartContextType) => {
-  const { cart, total, clearCart } = useContext(CartContext);
+  const { cart, total, originalTotal, discount, appliedPromotion, clearCart } = useContext(CartContext);
   const { formattedPrice } = useContext(ValueContext);
 
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
+
+  // Create professional WhatsApp message
+  const headerMessage = `🛒 *Olá! Gostaria de fazer o seguinte pedido:*\n\n`;
+
+  const productList = cart
+    .map((product) => {
+      const itemTotal = product.price * Number(product.amount);
+      return `📱 *${product.title}*\n` +
+             `   └ ${product.amount}x - ${formattedPrice(product.price)} cada\n` +
+             `   └ Subtotal: ${formattedPrice(itemTotal)}\n` +
+             `   └ 🖼️ Foto: ${product.image_url}`;
+    })
+    .join("\n\n");
+
+  // Include promotion information in WhatsApp message if applicable
+  const promotionInfo = appliedPromotion && discount > 0 
+    ? `\n\n🎉 *Promoção Aplicada: ${appliedPromotion}*\n💰 Desconto: ${formattedPrice(discount)}\n`
+    : '';
+
+  const footerMessage = `${promotionInfo}\n💰 *Total do Pedido: ${formattedPrice(total)}*`;
+
+  const message = `${headerMessage}${productList}${footerMessage}`;
+
+  const phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER || "+5594992424762";
+
+  // const handleSendOrder = () => {
+  //   console.log("PEDIDO:");
+  //   console.log(cart);
+
+  //   setIsOpenPopUp(true);
+  // };
 
   return (
     <div className="relative w-full h-full px-4 text-white flex flex-col">
@@ -42,10 +74,22 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
             {/* subtotal */}
             <div className="flex justify-between text-lg">
               <div>Subtotal</div>
-              <div>{formattedPrice(total)}</div>
+              <div>{formattedPrice(originalTotal)}</div>
             </div>
+            
+            {/* promotion info */}
+            {appliedPromotion && discount > 0 && (
+              <>
+                <div className="flex justify-between text-sm text-green-400 mt-1">
+                  <div>🎉 {appliedPromotion}</div>
+                  <div>-{formattedPrice(discount)}</div>
+                </div>
+                <div className="border-t border-gray-600 my-2"></div>
+              </>
+            )}
+            
             {/* total */}
-            <div className="flex justify-between text-2xl">
+            <div className="flex justify-between text-2xl font-bold">
               <div>Total</div>
               <div>{formattedPrice(total)}</div>
             </div>
@@ -62,13 +106,17 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
               >
                 Limpar Carrinho
               </button>
-              <button
-                className="button button-accent hover:bg-accent-hover text-primary flex-1 px-2 gap-x-2"
-                onClick={() => setIsOpenPopUp(true)}
+              <Link
+                className="button button-accent hover:bg-accent-hover text-primary flex-1 px-2 gap-x-2 flex items-center justify-center"
+                to={`https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+                  message
+                )}`}
+                target="_blank"
+                title="Enviar pedido via WhatsApp"
               >
-                Enviar Pedido
+                📱 Enviar via WhatsApp
                 <IoArrowForward className="text-lg" />
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="h-full absolute top-0 right-0 left-0 flex justify-center items-center -z-10 flex-col text-white/30">

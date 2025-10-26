@@ -4,6 +4,8 @@ import { FiTrash } from "react-icons/fi";
 
 import { Amount } from "../Amount";
 import { PopUpModal } from "../PopUpModal";
+import { usePromotion } from "../../hooks/usePromotion";
+import { useCartPromotion } from "../../hooks/useCartPromotion";
 
 import { CartContext } from "../../contexts/CartContext";
 import { ValueContext } from "../../contexts/ValueContext";
@@ -21,12 +23,42 @@ interface IProduct {
 }
 
 export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
-  const { removeFromCart } = useContext(CartContext);
+  const { removeFromCart, cart } = useContext(CartContext);
   const { formattedPrice } = useContext(ValueContext);
-
   const [isOpenPopUp, setIsOpenPopUp] = useState(false);
 
-  const updatedPrice = product.price * Number(product.amount);
+  // Hook de promoção para o produto
+  const promotion = usePromotion(product.id, product.price, product.category);
+
+  // Transformar cart para useCartPromotion
+  const cartItems = cart.map(item => ({
+    id: item.id,
+    category: item.category,
+    price: item.price,
+    quantity: item.amount || 1
+  }));
+
+  // Verificar se há promoção de carrinho ativa
+  const { promotionApplied } = useCartPromotion(cartItems);
+
+  // ✅ Lógica inteligente de supressão - igual ao CartContext
+  const shouldSuppressInCart = promotionApplied && Number(product.amount) >= 2;
+  const useIndividualDiscount = promotion.hasDiscount && !shouldSuppressInCart;
+
+  // Debug logs para acompanhar a lógica visual
+  console.log(`🎨 CartItem Visual - ${product.title}:`, {
+    promotionApplied,
+    quantity: Number(product.amount),
+    shouldSuppressInCart,
+    hasPromotion: promotion.hasDiscount,
+    useIndividualDiscount,
+    originalPrice: product.price,
+    discountedPrice: promotion.discountedPrice
+  });
+
+  // Preço final por unidade
+  const unitPrice = useIndividualDiscount ? promotion.discountedPrice : product.price;
+  const updatedPrice = unitPrice * Number(product.amount);
 
   const handleRemoveProduct = () => {
     removeFromCart(product.id);
@@ -36,14 +68,12 @@ export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
   return (
     <div className="flex gap-x-8">
       <Link to={`product/${product.id}`} className="w-[70px] h-[70px]">
-        {/* <Link to={`product/${product.id}`}> */}
         <img
           src={product.image_url}
           alt={product.title}
           className="min-w-5 object-cover"
         />
       </Link>
-
       <div className="flex-1">
         {/* title & remove icon */}
         <div className="flex gap-x-4 mb-3">
@@ -68,9 +98,20 @@ export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
         </div>
         {/* price */}
         <div>
-          <span className="text-accent">
-            {formattedPrice(product.price)} por unidade
-          </span>
+          {useIndividualDiscount ? (
+            <>
+              <span className="text-accent font-semibold">
+                {formattedPrice(promotion.discountedPrice)} por unidade
+              </span>
+              <span className="text-gray-400 line-through ml-2">
+                {formattedPrice(promotion.originalPrice)}
+              </span>
+            </>
+          ) : (
+            <span className="text-accent">
+              {formattedPrice(product.price)} por unidade
+            </span>
+          )}
         </div>
       </div>
       {isOpenPopUp && (
