@@ -4,10 +4,12 @@ import { useParams } from "react-router-dom";
 import { RelatedProducts } from "../../components/RelatedProducts";
 
 import { CartContext } from "../../contexts/CartContext";
+import { useToastContext } from "../../contexts/ToastContext";
 import { ValueContext } from "../../contexts/ValueContext";
 
 import { useProduct } from "../../hooks/useFetch";
 import { usePromotion } from "../../hooks/usePromotion";
+import { logger } from "../../utils/logger";
 
 // Import Swiper React components
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -53,11 +55,13 @@ const adaptBackendProductDetails = (backendProduct: BackendProduct) => {
     category: backendProduct.category,
     category_id: backendProduct.category, // 🆕 Usar category como category_id
     is_new: true,
+  created_at: backendProduct.created_at,
     amount: 1, // 🆕 Adicionar amount padrão
   };
 };
 
 export const ProductDetails = () => {
+  const { showWarning } = useToastContext();
   const { addToCart, cart } = useContext(CartContext);
   const { formattedPrice } = useContext(ValueContext);
   const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
@@ -101,7 +105,9 @@ export const ProductDetails = () => {
       const totalAfterAdd = currentInCart + selectedQuantity;
       
       if (totalAfterAdd > backendProduct.quantity) {
-        alert(`Você já tem ${currentInCart} unidades no carrinho. Máximo permitido: ${backendProduct.quantity} unidades`);
+          showWarning(
+            `Você já tem ${currentInCart} unidades no carrinho.\nMáximo permitido: ${backendProduct.quantity} unidades`
+          );
         return;
       }
       
@@ -111,7 +117,7 @@ export const ProductDetails = () => {
       // 🎯 RESET do seletor de quantidade após adicionar ao carrinho
       setSelectedQuantity(1);
       
-      console.log(`✅ Produto adicionado ao carrinho! Quantidade resetada para 1`);
+    logger.debug(`✅ Produto adicionado ao carrinho! Quantidade resetada para 1`);
     }
   };
 

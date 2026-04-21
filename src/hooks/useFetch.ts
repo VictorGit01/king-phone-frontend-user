@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { logger } from '../utils/logger';
 
 interface Product {
   id: string;
@@ -52,7 +53,7 @@ export const useFetch = (endpoint: string): UseFetchResult => {
 
       setData(response.data);
     } catch (err: any) {
-      console.error(`❌ Erro ao buscar ${endpoint}:`, err);
+  logger.error(`❌ Erro ao buscar ${endpoint}:`, err);
       setError(err.message || 'Erro ao carregar dados');
     } finally {
       setLoading(false);
@@ -91,7 +92,7 @@ export const useProduct = (id: string) => {
 
         setProduct(response.data);
       } catch (err: any) {
-        console.error(`❌ Erro ao buscar produto ${id}:`, err);
+  logger.error(`❌ Erro ao buscar produto ${id}:`, err);
         setError(err.message || 'Erro ao carregar produto');
       } finally {
         setLoading(false);
@@ -118,7 +119,7 @@ export const useBanners = () => {
         setLoading(true);
         setError(null);
 
-        console.log('🔍 Buscando banners...');
+  logger.debug('🔍 Buscando banners...');
 
         const response = await api.get('/banners');
 
@@ -129,7 +130,7 @@ export const useBanners = () => {
 
         setBanners(activeBanners);
       } catch (err: any) {
-        console.error('❌ Erro ao buscar banners:', err);
+  logger.error('❌ Erro ao buscar banners:', err);
         setError(err.message || 'Erro ao carregar banners');
         setBanners([]); // Array vazio em caso de erro
       } finally {
@@ -171,7 +172,7 @@ export const usePromotions = () => {
 
         setPromotions(activePromotions);
       } catch (err: any) {
-        console.error('❌ Erro ao buscar promoções:', err);
+  logger.error('❌ Erro ao buscar promoções:', err);
         setError(err.message || 'Erro ao carregar promoções');
         setPromotions([]); // Array vazio em caso de erro
       } finally {
@@ -205,7 +206,7 @@ export const useSettings = () => {
         const response = await api.get('/settings');
         setSettings(response.data);
       } catch (err: any) {
-        console.error('❌ Erro ao buscar configurações:', err);
+  logger.error('❌ Erro ao buscar configurações:', err);
         setError(err.message || 'Erro ao carregar configurações');
         // Manter configurações padrão em caso de erro
       } finally {

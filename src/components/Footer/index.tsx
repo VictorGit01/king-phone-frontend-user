@@ -5,7 +5,7 @@ import { RiVipCrownLine } from "react-icons/ri";
 export const Footer = () => {
   return (
     <footer className="pt-16 bg-primary">
-      <div className="container mx-auto">
+  <div className="container-wide">
         <div className="text-center">
           <h2 className="h2 uppercase mb-6 font-semibold">
             Assine a nossa newsletter.
@@ -76,7 +76,7 @@ export const Footer = () => {
       </div>
       {/* copyright */}
       <div className="py-10 border-t border-t-white/10">
-        <div className="container mx-auto">
+  <div className="container-wide">
           <div className="text-center text-sm text-white/60">
             Copyright &copy; Kingphone {new Date().getFullYear()}. Todos os
             direitos reservados

@@ -5,7 +5,7 @@ import { categories } from "../../database/categories";
 
 export const CategoryNavMobile = ({ setCatNavMobile }: any) => {
   return (
-    <div className="w-full h-full bg-primary p-8">
+  <div className="w-full h-screen bg-primary overflow-y-auto overscroll-contain p-8">
       {/* close icon */}
       <div
         onClick={() => setCatNavMobile(false)}
@@ -31,6 +31,13 @@ export const CategoryNavMobile = ({ setCatNavMobile }: any) => {
               onClick={() => setCatNavMobile(false)}
             >
               Todos os Produtos
+            </Link>
+            <Link
+              to="/promotions"
+              className="uppercase font-medium"
+              onClick={() => setCatNavMobile(false)}
+            >
+              Promoções
             </Link>
             <Link
               to="/contact"

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 import { ValueContext } from "../../contexts/ValueContext";
 import { usePromotion } from "../../hooks/usePromotion";
+import { isNewProduct } from "../../utils/isNewProduct";
+import type { TimestampLike } from "../../utils/isNewProduct";
 
 interface Product {
   id: string;
@@ -12,11 +14,17 @@ interface Product {
   image_url: string;
   category: string;
   is_new: boolean;
+  created_at?: TimestampLike;
 }
 
 export const Product = ({ product }: { product: Product }) => {
   const { formattedPrice } = useContext(ValueContext);
   const promotion = usePromotion(product.id, product.price, product.category);
+
+  // Regra: "novo" somente se criado nos últimos 5 dias.
+  // Compatibilidade: se o produto ainda vier do mock antigo sem created_at,
+  // a tag não aparece (evita marcar "novo" pra sempre).
+  const showNewBadge = isNewProduct(product.created_at, 5);
 
   // Debug log (comentado para reduzir poluição)
   // console.log('🛍️ Product Component:', {
@@ -34,7 +42,7 @@ export const Product = ({ product }: { product: Product }) => {
   return (
     <Link to={`/product/${product.id}`}>
       <div className="grad w-full h-[362px] rounded-[8px] overflow-hidden relative group">
-        {product.is_new && (
+  {showNewBadge && (
           <div className="absolute bg-accent text-primary text-[12px] font-extrabold uppercase top-4 right-4 px-2 rounded-full z-10">
             novo
           </div>

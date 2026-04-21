@@ -1,9 +1,7 @@
-import { useState, useEffect } from "react";
-import { usePromotions } from "../../hooks/useFetch";
-import { Product } from "../../components/Product";
-import { useProducts } from "../../hooks/useFetch";
+import { usePromotions, useProducts } from "../../hooks/useFetch";
 import { Link } from "react-router-dom";
 import { categoryIdToName } from "../../utils/categoryMapping";
+import { logger } from "../../utils/logger";
 
 export const Promotions = () => {
   const { promotions, loading: promotionsLoading } = usePromotions();
@@ -32,7 +30,7 @@ export const Promotions = () => {
     const hasDiscount = promo.discount_percent > 0;
     const isBuyXGetY = promo.promotion_type === 'buy_x_get_y' && promo.min_quantity && promo.get_quantity;
     
-    console.log('🔍 Analisando promoção:', {
+  logger.debug('🔍 Analisando promoção:', {
       id: promo.id,
       title: promo.title,
       type: promo.promotion_type,
@@ -50,8 +48,8 @@ export const Promotions = () => {
   }) || [];
 
   // Debug adicional para todas as promoções
-  console.log('📋 TODAS as promoções recebidas:', promotions);
-  console.log('🎉 Promoções ativas encontradas:', activePromotions);
+  logger.debug('📋 TODAS as promoções recebidas:', promotions);
+  logger.debug('🎉 Promoções ativas encontradas:', activePromotions);
 
   // Componente para card de promoção
   const PromotionCard = ({ promotion }: { promotion: any }) => {
@@ -171,7 +169,7 @@ export const Promotions = () => {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6 max-w-7xl mx-auto">
+          <div className="promotions-grid grid grid-cols-2 max-[425px]:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6 max-w-7xl mx-auto">
             {activePromotions.map((promotion) => (
               <PromotionCard key={promotion.id} promotion={promotion} />
             ))}

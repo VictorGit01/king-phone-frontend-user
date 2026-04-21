@@ -43,7 +43,13 @@ export const ProductSlider = ({
           slidesPerView: 4,
           spaceBetween: 30,
         },
+        1360: {
+          slidesPerView: 5,
+          spaceBetween: 30,
+        },
         1440: {
+          // Evita que os cards fiquem menores em telas grandes
+          // (com 6+ cards por view, o Swiper reduz demais o width de cada slide)
           slidesPerView: 5,
           spaceBetween: 30,
         },
@@ -51,16 +57,7 @@ export const ProductSlider = ({
       pagination={{
         clickable: true,
       }}
-      // className="product-slider mx-auto max-w-[360px] md:max-w-lg xl:max-w-[1410px]"
-      className="
-        product-slider 
-        mx-auto
-        max-w-[360px]
-        sm:max-w-sm
-        md:max-w-[768px]
-        lg:max-w-[1024px]
-        xl:max-w-[1410px]
-      "
+  className="product-slider w-full max-w-full overflow-hidden"
     >
       {data?.map((product) => {
         if (latestProducts && !product.is_new) {

@@ -24,3 +24,24 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Avoid mixed lockfiles (we use Yarn)
+package-lock.json
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Local-only Copilot/assistant session notes (do not commit)
+notes/_copilot/*
+
+# Temporary backup for images detected as unused during cleanups
+src/assets/_unused_images_backup-*/
+
+# Temporary TS/diagnostics output (local only)
+tsc.out.txt
+tsc.err.txt

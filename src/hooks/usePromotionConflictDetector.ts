@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { usePromotions } from './useFetch';
+import { logger } from '../utils/logger';
 
 interface CartItem {
   id: string;
@@ -142,7 +143,7 @@ export const usePromotionConflictDetector = (
       }
     }
 
-    console.log('🔍 Análise de conflito de promoções:', {
+  logger.debug('🔍 Análise de conflito de promoções:', {
       productId,
       individualPromotion: individualPromotion.title,
       individualDiscount,

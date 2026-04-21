@@ -1,6 +1,11 @@
 import React, { createContext, useEffect, useState, useMemo } from "react";
 import { useCartPromotion } from "../../hooks/useCartPromotion";
 import { usePromotions } from "../../hooks/useFetch";
+import { calculateIndividualDiscount } from "../../utils/calculateIndividualDiscount.ts";
+import { loadFromStorage, removeFromStorage, saveToStorage } from "../../utils/storage";
+import { logger } from "../../utils/logger";
+
+const CART_STORAGE_KEY = "kingphone:cart:v1";
 
 interface CartContextType {
   isOpen: boolean;
@@ -21,6 +26,7 @@ interface CartContextType {
   addToCart: (product: IProduct, id: string, quantity?: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+  placeOrder: () => void;
 }
 
 interface IProduct {
@@ -54,11 +60,12 @@ export const CartContext = createContext<CartContextType>({
   addToCart: () => {},
   removeFromCart: () => {},
   clearCart: () => [],
+  placeOrder: () => {},
 });
 
 export const CartProvider = ({ children }: any) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [cart, setCart] = useState<Array<IProduct>>([]);
+  const [cart, setCart] = useState<Array<IProduct>>(() => loadFromStorage<Array<IProduct>>(CART_STORAGE_KEY) ?? []);
   const [productsAmount, setProductsAmount] = useState(0);
   // const [amount, setAmount] = useState(0);
   const [total, setTotal] = useState(0);
@@ -78,86 +85,7 @@ export const CartProvider = ({ children }: any) => {
   // Use cart promotion hook
   const { promotionApplied, discountedTotal, savings, promotionTitle } = useCartPromotion(cartItems);
 
-  // Função para calcular desconto individual de um produto
-  const calculateIndividualDiscount = (productId: string, originalPrice: number, productCategory?: string) => {
-    if (!promotions || !productId) return { hasDiscount: false, discountedPrice: originalPrice };
-
-    // Mapeamento de categorias para manter compatibilidade com promoções antigas
-    const categoryMapping: { [key: string]: string[] } = {
-      'Smartphones': ['Smartphones', 'smartphone'],
-      'Fones de ouvido': ['Fones de ouvido', 'Fones de Ouvido', 'headphone'],
-      'Dispositivos vestíveis': ['Dispositivos vestíveis', 'smartwatch'],
-      'Carregadores': ['Carregadores', 'charger'],
-      'Assistentes virtuais': ['Assistentes virtuais', 'assistant'],
-      'Customização': ['Customização', 'customization'],
-      'smartphone': ['Smartphones', 'smartphone'],
-      'headphone': ['Fones de ouvido', 'Fones de Ouvido', 'headphone'],
-      'accessory': ['Acessórios', 'accessory'],
-      'speaker': ['Alto-falantes', 'speaker'],
-      'smartwatch': ['Dispositivos vestíveis', 'Smartwatches', 'smartwatch'],
-      'tablet': ['Tablets', 'tablet'],
-      'gaming': ['Gaming', 'gaming'],
-      'charger': ['Carregadores', 'charger'],
-      'assistant': ['Assistentes virtuais', 'assistant'],
-      'customization': ['Customização', 'customization']
-    };
-
-    // Função para verificar se uma categoria da promoção corresponde à categoria do produto
-    const categoriesMatch = (promoCategory: string, productCategory: string | undefined) => {
-      if (!productCategory || !promoCategory) return false;
-      if (promoCategory === productCategory) return true;
-      const mappedCategories = categoryMapping[promoCategory] || [];
-      return mappedCategories.includes(productCategory);
-    };
-
-    // Buscar promoção ativa para este produto
-    const activePromotion = promotions
-      .filter(promo => {
-        const isActive = promo.active;
-        const matchesSingleProduct = promo.promotion_type === 'single_product' && promo.product_id === productId && promo.discount_percent > 0;
-        const matchesCategory = promo.promotion_type === 'category' && promo.target_category && categoriesMatch(promo.target_category, productCategory) && promo.discount_percent > 0;
-        const matchesCombo = promo.promotion_type === 'combo' && promo.combo_products?.includes(productId) && promo.discount_percent > 0;
-        const matchesConditional = promo.promotion_type === 'conditional' && promo.discount_percent > 0;
-        
-        return isActive && (
-          matchesSingleProduct ||
-          matchesCategory ||
-          matchesCombo ||
-          matchesConditional
-        );
-      })
-      .sort((a, b) => {
-        const priorityOrder: { [key: string]: number } = {
-          'single_product': 1,
-          'combo': 2,
-          'category': 3,
-          'conditional': 4
-        };
-        
-        const priorityA = priorityOrder[a.promotion_type as string] || 999;
-        const priorityB = priorityOrder[b.promotion_type as string] || 999;
-        
-        if (priorityA === priorityB) {
-          return b.discount_percent - a.discount_percent;
-        }
-        
-        return priorityA - priorityB;
-      })[0];
-
-    if (activePromotion) {
-      const discountPercentage = activePromotion.discount_percent;
-      const discountAmount = (originalPrice * discountPercentage) / 100;
-      const discountedPrice = originalPrice - discountAmount;
-
-      return {
-        hasDiscount: true,
-        discountedPrice,
-        promotionTitle: activePromotion.title || 'Promoção especial'
-      };
-    }
-
-    return { hasDiscount: false, discountedPrice: originalPrice };
-  };
+  // desconto individual foi movido para util compartilhado
 
   useEffect(() => {
     const amount = cart.reduce((a, c) => {
@@ -167,9 +95,18 @@ export const CartProvider = ({ children }: any) => {
     setProductsAmount(amount);
   }, [cart]);
 
+  // Persistência do carrinho
+  useEffect(() => {
+    if (cart.length === 0) {
+      removeFromStorage(CART_STORAGE_KEY);
+      return;
+    }
+    saveToStorage(CART_STORAGE_KEY, cart);
+  }, [cart]);
+
   useEffect(() => {
     // Calcular o total considerando descontos individuais quando não há promoção de carrinho
-    const calculateTotal = (includeCartPromotions = false) => {
+  const calculateTotal = () => {
       return cart.reduce((total, item) => {
         const currentQuantity = item.amount || 1;
         // ✅ Nova lógica inteligente de supressão
@@ -178,14 +115,14 @@ export const CartProvider = ({ children }: any) => {
         
         // Se não há promoção de carrinho OU não deve suprimir, aplicar desconto individual
         if (!shouldSuppress) {
-          const { hasDiscount, discountedPrice } = calculateIndividualDiscount(item.id, item.price, item.category);
+          const { hasDiscount, discountedPrice } = calculateIndividualDiscount(promotions, item.id, item.price, item.category);
           
           if (hasDiscount) {
-            console.log(`🎯 Aplicando desconto individual para ${item.title || item.id}: R$ ${item.price} → R$ ${discountedPrice} (Qty: ${currentQuantity})`);
+            logger.debug(`🎯 Aplicando desconto individual para ${item.title || item.id}: R$ ${item.price} → R$ ${discountedPrice} (Qty: ${currentQuantity})`);
             return total + (discountedPrice * currentQuantity);
           }
         } else {
-          console.log(`⚠️ Suprimindo desconto individual para ${item.title || item.id} - Promoção de carrinho ativa (Qty: ${currentQuantity})`);
+          logger.debug(`⚠️ Suprimindo desconto individual para ${item.title || item.id} - Promoção de carrinho ativa (Qty: ${currentQuantity})`);
         }
         
         // Caso padrão: usar preço original
@@ -206,7 +143,7 @@ export const CartProvider = ({ children }: any) => {
       const cartPromotionDiscount = originalSubtotal - discountedTotal;
       const finalTotal = totalWithIndividualDiscounts - cartPromotionDiscount;
       
-      console.log('💰 Cálculo final do total:', {
+  logger.debug('💰 Cálculo final do total:', {
         originalSubtotal,
         totalWithIndividualDiscounts,
         cartPromotionDiscount,
@@ -260,6 +197,13 @@ export const CartProvider = ({ children }: any) => {
 
   const clearCart = () => {
     setCart([]);
+  setIsOpen(false);
+  };
+
+  const placeOrder = () => {
+    // Ação única para pós-redirecionamento ao WhatsApp
+    setCart([]);
+    setIsOpen(false);
   };
 
   return (
@@ -278,6 +222,7 @@ export const CartProvider = ({ children }: any) => {
         addToCart,
         removeFromCart,
         clearCart,
+  placeOrder,
       }}
     >
       {children}

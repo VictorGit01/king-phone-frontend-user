@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { usePromotions } from './useFetch';
+import { logger } from '../utils/logger';
 
 interface CartPromotionResult {
   promotionApplied: boolean;
@@ -38,7 +39,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
   })));
 
   useEffect(() => {
-    console.log('🔄 useCartPromotion called with:', { cartItemsLength: cartItems.length, promotionsLength: promotions?.length });
+  logger.debug('🔄 useCartPromotion called with:', { cartItemsLength: cartItems.length, promotionsLength: promotions?.length });
     
     if (!promotions || !cartItems.length) {
       const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -53,7 +54,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
       return;
     }
 
-    console.log('🛒 Calculando promoções do carrinho:', { cartItems, promotions });
+  logger.debug('🛒 Calculando promoções do carrinho:', { cartItems, promotions });
 
     // Mapeamento de categorias
     const categoryMapping: { [key: string]: string[] } = {
@@ -72,7 +73,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
     };
 
     const originalTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    console.log('💰 Subtotal original calculado:', { 
+  logger.debug('💰 Subtotal original calculado:', { 
       originalTotal, 
       itemBreakdown: cartItems.map(item => ({ 
         id: item.id, 
@@ -91,13 +92,13 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
       promo.active && promo.promotion_type === 'buy_x_get_y'
     );
 
-    console.log('🎯 Promoções Buy X Get Y encontradas:', buyXGetYPromotions);
+  logger.debug('🎯 Promoções Buy X Get Y encontradas:', buyXGetYPromotions);
 
     for (const promo of buyXGetYPromotions) {
-      console.log('🔍 Verificando promoção:', promo.title);
+  logger.debug('🔍 Verificando promoção:', promo.title);
       
       if (!promo.target_category || !promo.min_quantity || !promo.get_quantity) {
-        console.log('❌ Promoção incompleta:', { target_category: promo.target_category, min_quantity: promo.min_quantity, get_quantity: promo.get_quantity });
+  logger.debug('❌ Promoção incompleta:', { target_category: promo.target_category, min_quantity: promo.min_quantity, get_quantity: promo.get_quantity });
         continue;
       }
 
@@ -106,13 +107,13 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
         categoriesMatch(promo.target_category!, item.category)
       );
 
-      console.log('📦 Itens da categoria:', { 
+  logger.debug('📦 Itens da categoria:', { 
         promoCategory: promo.target_category, 
         categoryItems: categoryItems.map(item => ({ id: item.id, category: item.category, quantity: item.quantity }))
       });
 
       if (categoryItems.length === 0) {
-        console.log('❌ Nenhum item da categoria encontrado');
+  logger.debug('❌ Nenhum item da categoria encontrado');
         continue;
       }
 
@@ -127,7 +128,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
         productGroups[item.id].push(item);
       });
 
-      console.log('🔍 Produtos agrupados:', Object.keys(productGroups).map(id => ({
+  logger.debug('🔍 Produtos agrupados:', Object.keys(productGroups).map(id => ({
         productId: id,
         totalQuantity: productGroups[id].reduce((sum, item) => sum + item.quantity, 0)
       })));
@@ -139,7 +140,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
       for (const [productId, items] of Object.entries(productGroups)) {
         const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
         
-        console.log(`📊 Produto ${productId}: ${totalQuantity} unidades (mínimo necessário: ${promo.get_quantity})`);
+  logger.debug(`📊 Produto ${productId}: ${totalQuantity} unidades (mínimo necessário: ${promo.get_quantity})`);
         
         if (totalQuantity >= promo.get_quantity) {
           // Calcular economia para este produto específico
@@ -149,7 +150,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
           const totalItemsToGetFree = setsCompletos * (promo.get_quantity - promo.min_quantity);
           const productSavings = Math.min(totalItemsToGetFree, totalQuantity) * productPrice;
           
-          console.log(`💰 Promoção APLICADA para produto ${productId}:`, {
+          logger.debug(`💰 Promoção APLICADA para produto ${productId}:`, {
             totalQuantity,
             setsCompletos,
             totalItemsToGetFree,
@@ -163,11 +164,11 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
       }
 
       if (qualifyingProducts.length === 0) {
-        console.log('❌ Nenhum produto específico tem quantidade suficiente para a promoção');
+  logger.debug('❌ Nenhum produto específico tem quantidade suficiente para a promoção');
         continue;
       }
 
-      console.log(`🎯 Aplicando promoção para ${qualifyingProducts.length} produtos:`, {
+  logger.debug(`🎯 Aplicando promoção para ${qualifyingProducts.length} produtos:`, {
         products: qualifyingProducts,
         totalSavings: totalBuyXGetYSavings,
         requiredQuantity: promo.get_quantity
@@ -182,7 +183,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
           details: `Leve ${promo.get_quantity} unidades do mesmo produto e pague apenas ${promo.min_quantity}!`
         };
         
-        console.log('🏆 Nova melhor promoção (múltiplos produtos):', {
+  logger.debug('🏆 Nova melhor promoção (múltiplos produtos):', {
           title: bestPromotion.title,
           qualifyingProducts,
           totalSavings: bestSavings,
@@ -192,9 +193,9 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
         });
 
         // 🎯 TODOS os produtos qualificados terão promoções individuais suprimidas
-        console.log('⚠️ Promoções individuais serão suprimidas para produtos:', qualifyingProducts);
+  logger.debug('⚠️ Promoções individuais serão suprimidas para produtos:', qualifyingProducts);
       } else {
-        console.log('❌ Economia total insuficiente para ser a melhor promoção');
+  logger.debug('❌ Economia total insuficiente para ser a melhor promoção');
       }
     }
 
@@ -208,7 +209,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
       promo.promotion_type !== 'combo'
     );
 
-    console.log('🎯 Outras promoções (sem single_product):', otherPromotions.map(p => ({ title: p.title, type: p.promotion_type })));
+  logger.debug('🎯 Outras promoções (sem single_product):', otherPromotions.map(p => ({ title: p.title, type: p.promotion_type })));
 
     for (const promo of otherPromotions) {
       let savings = 0;

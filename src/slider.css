@@ -19,6 +19,7 @@
   width: 200px;
 }
 
+
 /* Estilos específicos para banners customizados (não o estático) */
 .main-slider .swiper-slide [style*="maxHeight: 250px"] {
   overflow: hidden !important;
@@ -36,7 +37,318 @@
   align-items: stretch;
 }
 
+/*
+  Importante: não force `height: 100%` no desktop.
+  Isso faz o slider tentar ocupar a altura do container pai (muitas vezes 100vh),
+  e o banner pode "estourar" em telas normais.
+  As regras de esticar/height ficam só no bloco mobile abaixo.
+*/
+
+/*
+  Mantém a altura do slider dirigida pelo conteúdo (evita cortar o banner estático),
+  mas garante uma altura mínima no mobile pra overlays não ficarem "espremidos".
+*/
+.main-slider {
+  width: 100%;
+}
+
+/* Desktop (layout com sidebar de categorias): igualar altura do card de categorias (500px) */
+@media (min-width: 1280px) {
+  .main-slider {
+    height: 500px;
+  }
+
+  /* Card de categorias deve acompanhar a mesma altura do slider */
+  .category-nav-card {
+    height: 500px;
+  }
+
+  .main-slider .swiper,
+  .main-slider .swiper-wrapper,
+  .main-slider .swiper-slide {
+    height: 100%;
+  }
+}
+
+/*
+  Faixa 960–1279px: aqui o Swiper tende a calcular altura pelo conteúdo (banner estático)
+  e pode sobrar "espaço" embaixo nos overlays. Forçamos uma altura consistente.
+*/
+@media (min-width: 960px) and (max-width: 1279.98px) {
+  .main-slider {
+    height: 460px;
+  }
+
+  /* Card de categorias deve acompanhar a mesma altura do slider */
+  .category-nav-card {
+    height: 460px;
+  }
+
+  .main-slider .swiper,
+  .main-slider .swiper-wrapper,
+  .main-slider .swiper-slide {
+    height: 100%;
+  }
+}
+
+/*
+  Faixa 789–959px (tablet/landscape): com o banner estático ativo,
+  o Swiper pode adotar a altura do estático e deixar “sobra” embaixo nos overlays.
+  Forçamos o slide de overlay a esticar na mesma altura do container.
+*/
+@media (min-width: 789px) and (max-width: 959.98px) {
+  .main-slider {
+    /*
+      Nessa faixa, o banner estático pode ditar uma altura maior.
+      Usamos uma base mais alta (≈700px) pra não sobrar “vazio” embaixo nos overlays.
+    */
+    height: clamp(700px, 80vh, 820px);
+  }
+
+  .main-slider .swiper,
+  .main-slider .swiper-wrapper,
+  .main-slider .swiper-slide {
+    height: 100%;
+  }
+
+  .main-slider .swiper-slide.slide-overlay-banner {
+    /*
+      O Swiper pode “travar” a altura do wrapper com base no slide estático.
+      Então garantimos uma altura mínima no próprio slide de overlay.
+    */
+    height: clamp(700px, 80vh, 820px) !important;
+    min-height: clamp(700px, 80vh, 820px) !important;
+  }
+}
+
+@media (max-width: 959.98px) {
+  /* A paginação do Swiper fica fora do wrapper do slide; no mobile ela precisa sobrepor o banner */
+  .main-slider.swiper {
+    position: relative;
+  display: flex;
+  flex-direction: column;
+  }
+
+  .main-slider .swiper-pagination {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.75rem;
+    z-index: 2000;
+    pointer-events: auto;
+  }
+
+  /* Garantir que a área “arrastável” seja o wrapper/slide e ocupe todo o container */
+  .main-slider.swiper .swiper-wrapper {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .main-slider.swiper .swiper-slide {
+    height: 100%;
+  }
+
+  /* Reserva espaço mínimo pra conteúdo não ficar atrás das bolinhas */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content,
+  .main-slider .swiper-slide.slide-static-banner > div {
+    padding-bottom: calc(0.75rem + 28px);
+  }
+  .main-slider {
+    /* No mobile, o banner estático precisa poder crescer pra não cortar o botão. */
+    height: auto;
+    min-height: 0;
+  }
+
+  /* No mobile, não fixar altura no container para não cortar o banner estático */
+  .main-slider.swiper {
+    height: auto;
+    min-height: 0;
+  }
+
+  /*
+    Quando só existem overlays (sem o banner estático), o Swiper pode acabar
+    calculando uma altura menor e o `h-full` vira "meia altura".
+    Forçamos a cadeia inteira a respeitar a altura do container.
+  */
+  /* Base: o wrapper acompanha a altura do slide ativo */
+  .main-slider.swiper .swiper-wrapper {
+    height: auto;
+  }
+
+  /* Overlay no mobile: altura consistente pra não sobrar espaço embaixo */
+  .main-slider .swiper-slide.slide-overlay-banner {
+    position: relative;
+   /* Força a altura do overlay (o Swiper pode variar altura por conteúdo).
+     Baseado no teste manual (600px) e com folga pra cobrir 100% em telas mais altas. */
+    min-height: clamp(600px, 85vh, 820px) !important;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+    line-height: 0;
+  }
+
+  /* Ajuste fino: alguns widths próximos de tablet (768–787px) ainda podem ficar com “respiro” */
+  @media (min-width: 768px) and (max-width: 787px) {
+    .main-slider .swiper-slide.slide-overlay-banner {
+      height: clamp(680px, 90vh, 900px) !important;
+      min-height: clamp(680px, 90vh, 900px) !important;
+    }
+  }
+
+  /*
+    Overlay: garantir que a área coberta (imagem + camada) encoste nas bordas do slide,
+    independente de qualquer padding do conteúdo.
+  */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* O swipe precisa funcionar no slide inteiro: não deixe camadas absolutas bloquearem o drag */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner > img,
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner > .absolute.inset-0 {
+    pointer-events: none;
+  }
+
+  /* Conteúdo continua clicável (botão/link) */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content {
+    pointer-events: auto;
+  }
+
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content {
+    position: relative;
+    height: 100%;
+    line-height: normal;
+  }
+
+  /*
+    Overlays (top/bottom): em telas menores, `justify-start/end` cola o conteúdo na borda.
+    Melhor UX no mobile/tablet: alinhar como o "Overlay Centralizado" (conteúdo centralizado)
+    e manter Top/Bottom apenas para desktop.
+  */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content {
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-bottom: max(calc(0.75rem + 28px + 20px), env(safe-area-inset-bottom));
+  }
+
+  /*
+    Centralização responsiva:
+    - overlay-top (justify-start) e overlay-bottom (justify-end) viram centralizados no mobile
+    - mantém overlay-center como já é
+  */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content.justify-start,
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content.justify-end {
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center;
+  }
+
+  /* Botão: garantir alinhamento central no mobile mesmo quando o TSX usa justify-start no container do botão */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content.justify-start a.button,
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content.justify-end a.button {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Forçar imagem e layer a cobrirem o slide inteiro (não depender de h-full) */
+  .main-slider .swiper-slide.slide-overlay-banner img.absolute.inset-0,
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner > .absolute.inset-0 {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Estático: não pode ser forçado a 100% se o conteúdo precisar de mais espaço (botão) */
+  .main-slider .swiper-slide.slide-static-banner {
+    height: auto;
+  min-height: 0;
+    overflow: visible;
+  }
+
+  /* Wrapper do overlay: nunca pode ter padding/margem, senão o fundo não encosta nas bordas */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Conteúdo do overlay mantém padding, mas não deve criar área "fora" do fundo */
+  .main-slider .swiper-slide.slide-overlay-banner .overlay-banner__content {
+    margin: 0;
+  }
+
+  .main-slider .swiper-slide.slide-overlay-banner > * {
+    height: 100%;
+    min-height: 100%;
+  }
+
+  /*
+    Exceção: banner estático precisa poder crescer para não cortar o CTA.
+    Mantemos a correção dos overlays, mas deixamos este slide com altura auto.
+  */
+  .main-slider .swiper-slide.slide-static-banner {
+    height: auto;
+    min-height: clamp(460px, 60vh, 620px);
+  }
+
+  .main-slider .swiper-slide.slide-static-banner > * {
+    height: auto;
+    min-height: 100%;
+  }
+
+  /* Wrapper em flex ajuda a manter a altura mesmo com conteúdo absoluto */
+  .main-slider .swiper-wrapper {
+    display: flex;
+  }
+
+  .main-slider .swiper-slide {
+    display: flex;
+    flex-direction: column;
+  /* Ajuda quando o Swiper calcula altura por conteúdo (ex: banner estático) */
+  align-items: stretch;
+  }
+
+  /* Overlays: flex em alguns navegadores cria espaço residual; força bloco no slide overlay */
+  .main-slider .swiper-slide.slide-overlay-banner {
+    display: block;
+  }
+
+  /*
+    Overlays (e também o banner estático) usam um wrapper direto dentro do slide.
+    Quando o estático está ativo, o Swiper pode calcular alturas pelo conteúdo.
+    Forçamos o 1º filho do slide a esticar pra `h-full` funcionar sempre.
+  */
+  .main-slider .swiper-slide > * {
+    height: 100%;
+    min-height: 100%;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: inherit;
+  }
+
+  /* Quando o wrapper do slide é flex/column, sem isso alguns navegadores deixam “sobrar” espaço */
+  .main-slider .swiper-slide > * {
+    align-self: stretch;
+  }
+}
+
 /* Box-sizing para cálculos precisos */
 .main-slider * {
   box-sizing: border-box;
 }
+
+/* Debug visual (ative se precisar inspecionar a “sobra”): */
+/*
+@media (max-width: 959.98px) {
+  .main-slider { outline: 2px solid red; }
+  .main-slider .swiper { outline: 2px solid orange; }
+  .main-slider .swiper-wrapper { outline: 2px solid yellow; }
+  .main-slider .swiper-slide { outline: 2px solid lime; }
+  .main-slider .swiper-slide > * { outline: 2px solid cyan; }
+}
+*/

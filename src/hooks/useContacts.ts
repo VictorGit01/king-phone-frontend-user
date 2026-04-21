@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { logger } from '../utils/logger';
 
 interface ContactsData {
   id?: string;
@@ -51,7 +52,7 @@ export const useContacts = () => {
       const response = await api.get('/contacts');
       setContacts(response.data);
     } catch (err: any) {
-      console.error('Erro ao buscar contatos:', err);
+    logger.error('Erro ao buscar contatos:', err);
       setError(err.message || 'Erro ao carregar contatos');
       
       // Retornar dados padrão em caso de erro

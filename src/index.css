@@ -76,6 +76,11 @@ button:focus-visible {
   body {
     @apply font-primary bg-body text-white;
   }
+
+  /* Container "wide" padrão (limitado) - mantém alinhamento consistente com Header/Footer */
+  .container-wide {
+    @apply mx-auto w-full max-w-[1410px] px-4;
+  }
   .h2 {
     @apply text-3xl capitalize;
   }
@@ -101,6 +106,31 @@ button:focus-visible {
     scrollbar-width: none;
   }
 
+  /* Thin dark scrollbar (para áreas que precisam de scroll visível, mas discreto) */
+  .thin-scrollbar {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(255, 255, 255, 0.28) transparent; /* thumb | track */
+  }
+
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.22);
+    border-radius: 9999px;
+    border: 2px solid transparent; /* cria um "padding" pro thumb parecer mais fino */
+    background-clip: padding-box;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.34);
+  }
+
   /* Swiper customization */
   .swiper-pagination-bullet {
     @apply bg-white opacity-50;
@@ -115,5 +145,14 @@ button:focus-visible {
   .swiper-button-next:after,
   .swiper-button-prev:after {
     @apply text-sm;
+  }
+}
+
+/* Defensive rule: force promotions grid to 1 column on very small devices <=425px
+   Tailwind utility `max-[425px]:grid-cols-1` should work, but some build configs
+   might not generate that variant; this ensures the layout stacks properly. */
+@media (max-width: 425px) {
+  .promotions-grid {
+    grid-template-columns: 1fr !important;
   }
 }

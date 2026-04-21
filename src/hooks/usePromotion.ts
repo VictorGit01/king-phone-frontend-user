@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { usePromotions } from './useFetch';
 import { CartContext } from '../contexts/CartContext';
 
@@ -13,15 +13,7 @@ interface PromotionDiscount {
 
 export const usePromotion = (productId: string, originalPrice: number, productCategory?: string): PromotionDiscount => {
   const { promotions } = usePromotions();
-  const { cart } = useContext(CartContext);
-  
-  // Memoizar cartItems para evitar recriações desnecessárias
-  const cartItems = useMemo(() => cart.map(item => ({
-    id: item.id,
-    category: item.category,
-    price: item.price,
-    quantity: item.amount || 1
-  })), [cart]);
+  useContext(CartContext);
 
   const [discount, setDiscount] = useState<PromotionDiscount>({
     hasDiscount: false,

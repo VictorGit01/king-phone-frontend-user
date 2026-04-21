@@ -9,6 +9,7 @@ import { useCartPromotion } from "../../hooks/useCartPromotion";
 
 import { CartContext } from "../../contexts/CartContext";
 import { ValueContext } from "../../contexts/ValueContext";
+import { logger } from "../../utils/logger";
 
 interface IProduct {
   id: string;
@@ -46,7 +47,7 @@ export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
   const useIndividualDiscount = promotion.hasDiscount && !shouldSuppressInCart;
 
   // Debug logs para acompanhar a lógica visual
-  console.log(`🎨 CartItem Visual - ${product.title}:`, {
+  logger.debug(`🎨 CartItem Visual - ${product.title}:`, {
     promotionApplied,
     quantity: Number(product.amount),
     shouldSuppressInCart,
@@ -66,18 +67,23 @@ export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
   };
 
   return (
-    <div className="flex gap-x-8">
-      <Link to={`product/${product.id}`} className="w-[70px] h-[70px]">
+    <div className="flex gap-x-4 sm:gap-x-6">
+      <Link
+        to={`product/${product.id}`}
+        className="w-20 h-24 sm:w-[84px] sm:h-[104px] flex-shrink-0"
+        aria-label={`Ver produto: ${product.title}`}
+      >
         <img
           src={product.image_url}
           alt={product.title}
-          className="min-w-5 object-cover"
+          className="w-full h-full object-contain"
+          loading="lazy"
         />
       </Link>
       <div className="flex-1">
         {/* title & remove icon */}
-        <div className="flex gap-x-4 mb-3">
-          <Link to={`product/${product.id}`} className="flex-1">
+        <div className="flex gap-x-3 sm:gap-x-4 mb-3">
+          <Link to={`product/${product.id}`} className="flex-1 min-w-0">
             {product.title}
           </Link>
           <div
@@ -87,7 +93,7 @@ export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
             <FiTrash />
           </div>
         </div>
-        <div className="flex items-center gap-x-12">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {/* quantity */}
           <div className="flex gap-x-4 mb-2">
             <Amount product={product} setIsOpenPopUp={setIsOpenPopUp} />
@@ -118,7 +124,7 @@ export const CartItem: FC<{ product: IProduct }> = ({ product }) => {
         <PopUpModal
           openModal={isOpenPopUp}
           setOpenModal={setIsOpenPopUp}
-          handleRemoveProduct={handleRemoveProduct}
+          handleConfirm={handleRemoveProduct}
         />
       )}
     </div>

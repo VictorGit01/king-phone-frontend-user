@@ -3,6 +3,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "../../slider.css";
 
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay } from "swiper/modules";
 import { Link } from "react-router-dom";
@@ -11,8 +12,21 @@ import iphoneImg from "../../assets/images/iphone-14.png";
 import { useBanners, useSettings } from "../../hooks/useFetch";
 
 export const MainSlider = () => {
-  const { banners, loading, error } = useBanners();
+  const { banners, loading } = useBanners();
   const { settings } = useSettings();
+
+  // Mantém o placeholder de loading visível por um tempo mínimo
+  // (pra sincronizar com o skeleton do Hero e evitar "piscar" rápido demais)
+  const MIN_BANNER_LOADING_MS = 900;
+  const [minDelayDone, setMinDelayDone] = useState(false);
+
+  useEffect(() => {
+    setMinDelayDone(false);
+    const t = window.setTimeout(() => setMinDelayDone(true), MIN_BANNER_LOADING_MS);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  const showBannerLoading = loading || !minDelayDone;
 
   // Banner estático padrão
   const staticBanner = {
@@ -45,21 +59,34 @@ export const MainSlider = () => {
     slidersToShow = [];
   }
 
-  if (loading) {
+  if (showBannerLoading) {
     return (
-      <div className="main-slider h-full bg-primary rounded-[8px] overflow-hidden drop-shadow-2xl flex items-center justify-center">
-        <p className="text-white">Carregando banners...</p>
+      <div
+  className="main-slider w-full mx-auto bg-primary rounded-[8px] overflow-hidden drop-shadow-2xl flex items-center justify-center max-w-lg lg:max-w-none h-[clamp(610px,75vh,760px)] md:h-[clamp(700px,80vh,820px)] lg:h-[460px] xl:h-[500px]"
+      >
+        <div className="grad w-full h-full p-[20px] md:p-[60px] animate-pulse flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="h-10 w-3/4 bg-white/10 rounded" />
+            <div className="h-4 w-11/12 bg-white/10 rounded" />
+            <div className="h-4 w-8/12 bg-white/10 rounded" />
+            <div className="hidden lg:block h-10 w-40 bg-white/10 rounded" />
+          </div>
+
+          <div className="flex justify-center lg:justify-end">
+            <div className="h-[220px] w-[220px] max-w-[70%] bg-white/10 rounded" />
+          </div>
+
+          <div className="lg:hidden flex justify-center">
+            <div className="h-10 w-40 bg-white/10 rounded" />
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Se não há banners para mostrar, não renderizar o slider
+  // Se não há banners para mostrar, não renderizar nada
   if (slidersToShow.length === 0) {
-    return (
-      <div className="main-slider h-full bg-gray-200 rounded-[8px] overflow-hidden drop-shadow-2xl flex items-center justify-center">
-        <p className="text-gray-600">Nenhum banner ativo</p>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -71,14 +98,15 @@ export const MainSlider = () => {
       pagination={{
         clickable: true,
       }}
-      autoplay={slidersToShow.length > 1 ? {
-        delay: 3500,
+      autoplay={{
+        delay: 5000,
         disableOnInteraction: false,
-      } : false}  // Só ativar autoplay se há múltiplos slides
+        pauseOnMouseEnter: true,
+      }}
       allowTouchMove={true}
-      className="main-slider h-full bg-primary xl:bg-main-slider xl:bg-no-repeat max-w-lg lg:max-w-none rounded-[8px] overflow-hidden drop-shadow-2xl"
+  className="main-slider w-full bg-primary xl:bg-main-slider xl:bg-no-repeat max-w-lg lg:max-w-none rounded-[8px] overflow-hidden drop-shadow-2xl p-0"
     >
-      {slidersToShow.map((slide, index) => {
+  {slidersToShow.map((slide, index) => {
         const isStaticBanner = slide.id === 'static-banner';
         
         // Função para renderizar conteúdo baseado no layout
@@ -186,22 +214,25 @@ export const MainSlider = () => {
                       style={{ maxHeight: '180px', maxWidth: '100%' }}
                     />
                   </div>
-                  <TextContent textAlign="text-center" />
+                  <TextContent textAlign="text-center" showButton={false} />
+                  {slide.link_url && slide.link_url !== '#' && (
+                    <div className="flex justify-center mt-2">
+                      <Link to={slide.link_url} className="button button-accent">Compre agora</Link>
+                    </div>
+                  )}
                 </div>
               );
               
             case 'overlay-bottom':
               return (
-                <div className="relative h-full overflow-hidden">
-                  <div className="absolute inset-0">
-                    <img
-                      className="w-full h-full object-cover"
-                      src={slide.image_url || iphoneImg}
-                      alt={slide.title}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                  </div>
-                  <div className="relative z-10 h-full flex flex-col justify-end p-[20px] md:p-[60px] text-white">
+                <div className="relative h-full overflow-hidden overlay-banner">
+                  <img
+                    className="absolute inset-0 w-full h-full object-cover"
+                    src={slide.image_url || iphoneImg}
+                    alt={slide.title}
+                  />
+                  <div className="absolute inset-0 bg-black/40"></div>
+                  <div className="relative z-[1000] h-full flex flex-col justify-end overlay-banner__content p-[20px] md:p-[60px] text-white">
                     <TextContent textAlign="text-center lg:text-left" showButton={false} />
                     {slide.link_url && slide.link_url !== '#' && (
                       <div className="flex justify-center lg:justify-start mt-4">
@@ -214,16 +245,14 @@ export const MainSlider = () => {
               
             case 'overlay-top':
               return (
-                <div className="relative h-full overflow-hidden">
-                  <div className="absolute inset-0">
-                    <img
-                      className="w-full h-full object-cover"
-                      src={slide.image_url || iphoneImg}
-                      alt={slide.title}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                  </div>
-                  <div className="relative z-10 h-full flex flex-col justify-start p-[20px] md:p-[60px] text-white">
+                <div className="relative h-full overflow-hidden overlay-banner">
+                  <img
+                    className="absolute inset-0 w-full h-full object-cover"
+                    src={slide.image_url || iphoneImg}
+                    alt={slide.title}
+                  />
+                  <div className="absolute inset-0 bg-black/40"></div>
+                  <div className="relative z-[1000] h-full flex flex-col justify-start overlay-banner__content p-[20px] md:p-[60px] text-white">
                     <TextContent textAlign="text-center lg:text-left" showButton={false} />
                     {slide.link_url && slide.link_url !== '#' && (
                       <div className="flex justify-center lg:justify-start mt-4">
@@ -236,16 +265,14 @@ export const MainSlider = () => {
               
             case 'overlay-center':
               return (
-                <div className="relative h-full overflow-hidden">
-                  <div className="absolute inset-0">
-                    <img
-                      className="w-full h-full object-cover"
-                      src={slide.image_url || iphoneImg}
-                      alt={slide.title}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                  </div>
-                  <div className="relative z-10 h-full flex flex-col justify-center items-center p-[20px] md:p-[60px] text-white text-center">
+                <div className="relative h-full overflow-hidden overlay-banner">
+                  <img
+                    className="absolute inset-0 w-full h-full object-cover"
+                    src={slide.image_url || iphoneImg}
+                    alt={slide.title}
+                  />
+                  <div className="absolute inset-0 bg-black/40"></div>
+                  <div className="relative z-[1000] h-full flex flex-col justify-center items-center overlay-banner__content p-[20px] md:p-[60px] text-white text-center">
                     <TextContent textAlign="text-center" showButton={false} />
                     {slide.link_url && slide.link_url !== '#' && (
                       <div className="flex justify-center mt-4">
@@ -271,8 +298,24 @@ export const MainSlider = () => {
           }
         };
 
+        const bannerLayout = (slide.layout || 'left-content') as string;
+        const isOverlayBanner =
+          !isStaticBanner &&
+          (bannerLayout === 'overlay-bottom' ||
+            bannerLayout === 'overlay-top' ||
+            bannerLayout === 'overlay-center');
+
         return (
-          <SwiperSlide key={slide.id || index}>
+          <SwiperSlide
+            key={slide.id || index}
+            className={
+              isStaticBanner
+                ? 'slide-static-banner'
+                : isOverlayBanner
+                  ? 'slide-overlay-banner'
+                  : 'slide-regular-banner'
+            }
+          >
             {renderBannerContent()}
           </SwiperSlide>
         );

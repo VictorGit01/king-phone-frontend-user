@@ -2,6 +2,7 @@ import { FC, useContext, useEffect, useState } from "react";
 
 import { CartContext } from "../../contexts/CartContext";
 import { useProducts } from "../../hooks/useFetch";
+import { useToastContext } from "../../contexts/ToastContext";
 
 interface IProduct {
   id: string;
@@ -21,6 +22,7 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
 }) => {
   const { cart, setCart, setProductsAmount } = useContext(CartContext);
   const { data: products } = useProducts();
+  const { showWarning } = useToastContext();
 
   const [amount, setAmount] = useState(product.amount);
 
@@ -38,7 +40,7 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
   const incrementAmount = () => {
     const newValue = Number(amount) + 1;
     if (newValue > currentProductStock) {
-      alert(`Só temos ${currentProductStock} unidades disponíveis em estoque`);
+  showWarning(`Só temos ${currentProductStock} unidades disponíveis em estoque`);
       return;
     }
     updateCartAmount(newValue);

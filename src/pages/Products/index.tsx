@@ -6,6 +6,7 @@ import { Product } from "../../components/Product";
 
 import { useProducts } from "../../hooks/useFetch";
 import { categories } from "../../database/categories";
+import { logger } from "../../utils/logger";
 
 export const Products = () => {
   const [title, setTitle] = useState("");
@@ -39,13 +40,14 @@ export const Products = () => {
       category: apiProduct.category,
       category_id: apiProduct.category, // Usando category como category_id
       is_new: true,
+  created_at: apiProduct.created_at,
     };
   };
 
   // Converter produtos da API para o formato esperado
   const allProducts = apiProducts ? apiProducts.map(adaptApiProduct) : [];
 
-  console.log('🛍️ Products Page Debug:', {
+  logger.debug('🛍️ Products Page Debug:', {
     id,
     categoryQuery,
     promoQuery,
@@ -67,7 +69,7 @@ export const Products = () => {
     
     // Filtro por categoria da query string (?category=...)
     else if (categoryQuery) {
-      console.log('🔍 Filtrando produtos por categoria query:', categoryQuery);
+  logger.debug('🔍 Filtrando produtos por categoria query:', categoryQuery);
       products = products.filter(product => {
         // Correspondência direta (agora sincronizada)
         if (product.category === categoryQuery) {
@@ -82,13 +84,13 @@ export const Products = () => {
         
         return false;
       });
-      console.log('🎯 Produtos filtrados encontrados:', products.length);
+  logger.debug('🎯 Produtos filtrados encontrados:', products.length);
     }
 
     // Filtros adicionais baseados em tipo de promoção
     if (promoQuery) {
       // Aqui você pode adicionar lógicas específicas para cada tipo de promoção
-      console.log(`🎯 Filtrando produtos para promoção: ${promoQuery}`);
+  logger.debug(`🎯 Filtrando produtos para promoção: ${promoQuery}`);
     }
 
     return products;
