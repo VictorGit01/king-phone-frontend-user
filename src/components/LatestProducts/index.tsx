@@ -78,6 +78,11 @@ export const LatestProducts = () => {
     );
   }
 
+  // Se carregou sem erro e não tem produtos, não renderiza a seção (evita título solto).
+  if (!products.length) {
+    return null;
+  }
+
   return (
     <div className="mb-16 flex-col items-center px-[1rem]">
   <div className="container mx-auto">

@@ -106,8 +106,10 @@ export const Hero = () => {
   // e sincroniza com o carregamento de banners.
   const showHeroLoading = promotionsLoading || bannersLoading || !minDelayDone;
 
-  // Enquanto carrega promoções, manter o gap do layout final (evita o skeleton grudar na sidebar)
-  const shouldUsePromoLayoutGap = hasActivePromotions || showHeroLoading;
+  // Enquanto carrega promoções, manter o gap do layout final.
+  // Porém, quando NÃO houver promoções (nem skeleton), o slider não deve ampliar
+  // e ficar "colado" na sidebar. Mantemos um gap base no desktop grande.
+  const showPromoColumn = hasActivePromotions || showHeroLoading;
 
 
 
@@ -221,7 +223,7 @@ export const Hero = () => {
         <div
           className={
             `flex flex-col gap-y-[30px] lgxl:flex-row overflow-x-hidden lgxl:gap-x-[20px] ` +
-            (shouldUsePromoLayoutGap ? "xl:gap-x-[30px]" : "xl:gap-x-0")
+            (showPromoColumn ? "xl:gap-x-[30px]" : "xl:gap-x-[20px]")
           }
         >
           {/* sidebar */}
@@ -230,14 +232,14 @@ export const Hero = () => {
           </div>
           {/* main slider */}
           <div className={`w-full mx-auto ${
-            shouldUsePromoLayoutGap 
+            showPromoColumn 
               ? 'lgxl:flex-1 lgxl:min-w-0' 
-              : 'lgxl:max-w-full'
+              : 'lgxl:flex-1 lgxl:min-w-0'
           }`}>
             <MainSlider />
           </div>
           {/* promo area (desktop grande ≥1360): continua na lateral */}
-          {(hasActivePromotions || showHeroLoading) && (
+          {showPromoColumn && (
             <div className="hidden xl:block xl:flex-shrink-0 xl:w-64">
               {hasActivePromotions ? (
                 renderPromoArea()
@@ -253,7 +255,7 @@ export const Hero = () => {
 
     {/* promo area (mobile/tablet): mantém o comportamento antigo (cards em 1 coluna)
       Ajuste extra em 960–1023px (lg): conter a largura para não ficar largo demais. */}
-    {(hasActivePromotions || showHeroLoading) && (
+  {showPromoColumn && (
       <div className="lgxl:hidden mt-[30px]">
             {hasActivePromotions ? (
               renderPromoArea()
