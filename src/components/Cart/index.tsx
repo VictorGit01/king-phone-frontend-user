@@ -56,8 +56,17 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
       const unitPriceForWhatsapp = hasDiscount && !shouldSuppressIndividualDiscount ? discountedPrice : product.price;
       const itemSubtotalForWhatsapp = unitPriceForWhatsapp * qty;
 
+      // Campos opcionais de produto (nem sempre vêm no tipo do carrinho)
+      const brand = (product as any)?.brand;
+      const color = (product as any)?.color;
+
+      const extraInfoLines = [
+        brand ? `- Marca: ${String(brand).trim()}` : "",
+        color ? `- Cor: ${String(color).trim()}` : "",
+      ].filter(Boolean);
+
   return `*${product.title}*\n` +
-     `- Qtd: ${qty}x\n` +
+     (extraInfoLines.length ? `${extraInfoLines.join("\n")}\n` : "") +
      `- Preço un.: ${formattedPrice(unitPriceForWhatsapp)}\n` +
      `- Subtotal: ${formattedPrice(itemSubtotalForWhatsapp)}\n` +
      `- Foto: ${product.image_url}`;
@@ -73,13 +82,12 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
 
   const message = `${headerMessage}${productList}${footerMessage}`;
 
-  // WhatsApp phone must be provided via env var in production.
-  // Obs: wa.me exige somente dígitos (sem +, espaços, parênteses, etc.).
-  const rawPhoneNumber = String(import.meta.env.VITE_WHATSAPP_NUMBER ?? "");
-  const phoneDigits = rawPhoneNumber.replace(/\D/g, "");
+  // WhatsApp phone must be provided via env var in production. If missing, build the URL without a phone
+  // so developers notice the issue instead of shipping a test number in the code.
+  const phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER ?? "";
 
-  const whatsappUrl = phoneDigits
-    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(message)}`
+  const whatsappUrl = phoneNumber
+    ? `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     : `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   // const handleSendOrder = () => {
