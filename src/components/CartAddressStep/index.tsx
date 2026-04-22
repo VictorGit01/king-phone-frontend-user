@@ -91,8 +91,12 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
   };
 
   const handleSendViaWhatsapp = () => {
-    // 1) Abre WhatsApp em nova aba
-    window.open(finalWhatsappUrl, "_blank", "noreferrer");
+    // 1) Abre WhatsApp em nova aba (pode ser bloqueado por pop-up blockers dependendo do browser)
+    const newTab = window.open(finalWhatsappUrl, "_blank", "noopener,noreferrer");
+    // Fallback: se o browser bloqueou, navega na mesma aba.
+    if (!newTab) {
+      window.location.href = finalWhatsappUrl;
+    }
     // 2) Limpa e fecha carrinho
     placeOrder();
   // 3) Sinaliza para a Home exibir o modal de sucesso aps o redirect

@@ -73,12 +73,13 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
 
   const message = `${headerMessage}${productList}${footerMessage}`;
 
-  // WhatsApp phone must be provided via env var in production. If missing, build the URL without a phone
-  // so developers notice the issue instead of shipping a test number in the code.
-  const phoneNumber = import.meta.env.VITE_WHATSAPP_NUMBER ?? "";
+  // WhatsApp phone must be provided via env var in production.
+  // Obs: wa.me exige somente dígitos (sem +, espaços, parênteses, etc.).
+  const rawPhoneNumber = String(import.meta.env.VITE_WHATSAPP_NUMBER ?? "");
+  const phoneDigits = rawPhoneNumber.replace(/\D/g, "");
 
-  const whatsappUrl = phoneNumber
-    ? `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+  const whatsappUrl = phoneDigits
+    ? `https://wa.me/${phoneDigits}?text=${encodeURIComponent(message)}`
     : `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   // const handleSendOrder = () => {
