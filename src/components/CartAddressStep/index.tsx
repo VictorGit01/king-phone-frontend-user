@@ -36,6 +36,11 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
     return merged;
   });
 
+  const [isSending, setIsSending] = useState(false);
+  const [whatsAppDebugMessage, setWhatsAppDebugMessage] = useState<string>(
+    () => sessionStorage.getItem("kingphone:whatsapp:lastDebug") ?? ""
+  );
+
   useEffect(() => {
     saveToStorage(ADDRESS_STORAGE_KEY, address);
   }, [address]);
@@ -91,22 +96,71 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
   };
 
   const handleSendViaWhatsapp = () => {
-  // 1) Abre WhatsApp em nova aba
-  //    - noopener/noreferrer evita que a aba do WhatsApp consiga controlar a aba atual
-  //    - não fazemos navigate('/') aqui, senão alguns browsers/mobile podem duplicar abas
-  const newTab = window.open(finalWhatsappUrl, "_blank", "noopener,noreferrer");
+  // Evita duplo clique / reentrância (isso costuma causar duas abas)
+  if (isSending) return;
+  setIsSending(true);
 
-  // 2) Limpa o carrinho e reseta o step
-  placeOrder();
-  onOrderPlaced?.();
+  // 1) Tenta abrir via <a target="_blank"> + click programático.
+  //    Em muitos browsers isso passa melhor pelos bloqueios de pop-up do que window.open.
+    const tryOpenByAnchorClick = (url: string): boolean => {
+      try {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return true;
+      } catch {
+        return false;
+      }
+    };
 
-  // 3) Marca flag pra Home exibir o modal quando o usuário voltar para o site
+    let opened = tryOpenByAnchorClick(finalWhatsappUrl);
+
+    // Fallback: alguns navegadores ainda requerem window.open
+    let newTab: Window | null = null;
+    if (!opened) {
+      newTab = window.open(finalWhatsappUrl, "_blank", "noopener,noreferrer");
+      opened = Boolean(newTab);
+    }
+
+  // Só exibe banner se der problema (pop-up bloqueado). Quando abre, mantemos limpo.
+  sessionStorage.removeItem("kingphone:whatsapp:lastDebug");
+  setWhatsAppDebugMessage("");
+
+  // 2) Marca flag pra Home exibir o modal quando o usuário voltar para o site
   sessionStorage.setItem(ORDER_PLACED_FLAG_KEY, "1");
 
-  // 4) Se o browser bloqueou pop-up, aí sim fazemos fallback na mesma aba
-  if (!newTab) {
-    window.location.assign(finalWhatsappUrl);
-  }
+  // 3) Se abriu com sucesso: limpar carrinho, voltar pra Home e deixar o modal aparecer.
+  if (opened) {
+      placeOrder();
+      onOrderPlaced?.();
+
+      // navega para Home no próximo tick (evita competir com o window.open)
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        navigate("/");
+      }, 0);
+    } else {
+      // 4) Pop-up bloqueado: não navega a aba atual (pra evitar o comportamento ruim), só avisa.
+  const msg = "[WhatsApp] pop-up bloqueado. Libere pop-ups para este site e tente novamente.";
+  sessionStorage.setItem("kingphone:whatsapp:lastDebug", msg);
+  setWhatsAppDebugMessage(msg);
+    }
+
+  // Libera novamente após um pequeno intervalo (evita cliques seguidos)
+  setTimeout(() => setIsSending(false), 800);
+  };
+
+  const handleSendViaWhatsappMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Evita que algum listener externo ou comportamento padrão dispare um segundo evento de click
+    e.preventDefault();
+    e.stopPropagation();
+
+    handleSendViaWhatsapp();
   };
 
   return (
@@ -214,6 +268,12 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
       </div>
 
       <div className="px-6 pb-6">
+        {whatsAppDebugMessage ? (
+          <div className="mb-3 rounded-md border border-yellow-500/30 bg-yellow-500/10 p-3 text-xs text-yellow-200 whitespace-pre-wrap">
+            {whatsAppDebugMessage}
+          </div>
+        ) : null}
+
         <div className="pt-4 pb-5 flex flex-col">
           <div className="flex justify-between text-sm text-white/70">
             <div>Subtotal</div>
@@ -236,7 +296,13 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
           className={`button button-accent hover:bg-accent-hover text-primary flex-1 px-2 gap-x-2 flex items-center justify-center ${
             !isValid ? "opacity-60 pointer-events-none" : ""
           }`}
-          onClick={handleSendViaWhatsapp}
+          disabled={!isValid || isSending}
+          onMouseDown={handleSendViaWhatsappMouseDown}
+          onClick={(e) => {
+            // redundância: garante que não vai executar dois fluxos em browsers que disparam click depois do mousedown
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           title={!isValid ? "Preencha os campos obrigatórios para continuar" : "Enviar pedido via WhatsApp"}
         >
           Enviar via WhatsApp

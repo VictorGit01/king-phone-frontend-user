@@ -38,6 +38,8 @@ interface IProduct {
   category: string;
   category_id: string;
   is_new: boolean;
+  brand?: string;
+  color?: string;
   amount?: number;
 }
 

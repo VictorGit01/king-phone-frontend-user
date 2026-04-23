@@ -61,16 +61,16 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
       const color = (product as any)?.color;
 
       const extraInfoLines = [
-        brand ? `- Marca: ${String(brand).trim()}` : "",
-        color ? `- Cor: ${String(color).trim()}` : "",
+        brand ? `• Marca: ${String(brand).trim()}` : "",
+        color ? `• Cor: ${String(color).trim()}` : "",
       ].filter(Boolean);
 
   return `*${product.title}*\n` +
      (extraInfoLines.length ? `${extraInfoLines.join("\n")}\n` : "") +
-     `- Qtd: ${qty}x\n` +
-     `- Preço un.: ${formattedPrice(unitPriceForWhatsapp)}\n` +
-     `- Subtotal: ${formattedPrice(itemSubtotalForWhatsapp)}\n` +
-     `- Foto: ${product.image_url}`;
+     `• Qtd: ${qty}x\n` +
+     `• Preço un.: ${formattedPrice(unitPriceForWhatsapp)}\n` +
+     `• Subtotal: ${formattedPrice(itemSubtotalForWhatsapp)}\n` +
+     `• Foto: ${product.image_url}`;
     })
     .join("\n\n");
 

@@ -55,6 +55,8 @@ const adaptBackendProductDetails = (backendProduct: BackendProduct) => {
     category: backendProduct.category,
     category_id: backendProduct.category, // 🆕 Usar category como category_id
     is_new: true,
+  brand: backendProduct.brand,
+  color: backendProduct.color,
   created_at: backendProduct.created_at,
     amount: 1, // 🆕 Adicionar amount padrão
   };
