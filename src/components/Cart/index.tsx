@@ -67,6 +67,7 @@ export const Cart = ({ setIsOpen }: CartContextType) => {
 
   return `*${product.title}*\n` +
      (extraInfoLines.length ? `${extraInfoLines.join("\n")}\n` : "") +
+     `- Qtd: ${qty}x\n` +
      `- Preço un.: ${formattedPrice(unitPriceForWhatsapp)}\n` +
      `- Subtotal: ${formattedPrice(itemSubtotalForWhatsapp)}\n` +
      `- Foto: ${product.image_url}`;
