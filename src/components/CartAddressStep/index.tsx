@@ -91,23 +91,22 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
   };
 
   const handleSendViaWhatsapp = () => {
-    // 1) Abre WhatsApp em nova aba (pode ser bloqueado por pop-up blockers dependendo do browser)
-    const newTab = window.open(finalWhatsappUrl, "_blank", "noopener,noreferrer");
-    // Fallback: se o browser bloqueou, navega na mesma aba.
-    if (!newTab) {
-      window.location.href = finalWhatsappUrl;
-    }
-    // 2) Limpa e fecha carrinho
-    placeOrder();
-  // 3) Sinaliza para a Home exibir o modal de sucesso aps o redirect
-  sessionStorage.setItem(ORDER_PLACED_FLAG_KEY, "1");
-  // 4) Volta pro topo antes do redirect (e evita ficar no meio da pgina)
-  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  // 4) Volta pra home
-  navigate("/");
+  // 1) Abre WhatsApp em nova aba
+  //    - noopener/noreferrer evita que a aba do WhatsApp consiga controlar a aba atual
+  //    - não fazemos navigate('/') aqui, senão alguns browsers/mobile podem duplicar abas
+  const newTab = window.open(finalWhatsappUrl, "_blank", "noopener,noreferrer");
 
-  // 5) Reseta estado do carrinho (step) no componente pai, se fornecido
+  // 2) Limpa o carrinho e reseta o step
+  placeOrder();
   onOrderPlaced?.();
+
+  // 3) Marca flag pra Home exibir o modal quando o usuário voltar para o site
+  sessionStorage.setItem(ORDER_PLACED_FLAG_KEY, "1");
+
+  // 4) Se o browser bloqueou pop-up, aí sim fazemos fallback na mesma aba
+  if (!newTab) {
+    window.location.assign(finalWhatsappUrl);
+  }
   };
 
   return (
