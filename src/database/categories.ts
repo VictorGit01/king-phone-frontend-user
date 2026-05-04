@@ -59,4 +59,24 @@ export const categories = [
     id: '15c',
     name: 'Variedades'
   },
+  {
+    id: '16c',
+    name: 'iPhones Novos'
+  },
+  {
+    id: '17c',
+    name: 'iPhones Seminovos'
+  },
+  {
+    id: '18c',
+    name: 'Xiaomi Novos'
+  },
+  {
+    id: '19c',
+    name: 'Realme Novos'
+  },
+  {
+    id: '20c',
+    name: 'Smartphones Seminovos'
+  }
 ];
