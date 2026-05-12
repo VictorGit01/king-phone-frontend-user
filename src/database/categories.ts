@@ -78,5 +78,13 @@ export const categories = [
   {
     id: '20c',
     name: 'Smartphones Seminovos'
+  },
+  {
+    id: '21c',
+    name: 'iPads'
+  },
+  {
+    id: '22c',
+    name: 'Tablets'
   }
 ];
