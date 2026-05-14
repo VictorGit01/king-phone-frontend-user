@@ -59,6 +59,7 @@ export const Product = ({ product }: { product: Product }) => {
             // src={`http://localhost:5173${product.image_url}`}
             src={product.image_url}
             alt=""
+            loading="lazy"
           />
         </div>
 
