@@ -111,6 +111,7 @@ export const Promotions = () => {
             src={promotion.image_url} 
             alt={promotion.title}
             className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
           />
           <div className="absolute top-3 left-3">
             <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
