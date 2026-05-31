@@ -1,33 +1,57 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 
 import { CategoryNav } from "../../components/CategoryNav";
 import { Product } from "../../components/Product";
 
-import { useProducts } from "../../hooks/useFetch";
+import { usePaginatedProducts } from "../../hooks/useFetch";
 import { categories } from "../../database/categories";
 import { logger } from "../../utils/logger";
+
+// Mapeamento reverso apenas para compatibilidade com promoções antigas
+const categoryReverseMapping: { [key: string]: string } = {
+  'smartphone': 'Smartphones',
+  'headphone': 'Fones de ouvido',
+  'smartwatch': 'Dispositivos vestíveis',
+  'charger': 'Carregadores',
+  'assistant': 'Assistentes virtuais',
+  'customization': 'Customização'
+};
 
 export const Products = () => {
   const [title, setTitle] = useState("");
   const { id } = useParams();
   const location = useLocation();
-  const { data: apiProducts, loading, error } = useProducts();
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // Pegar parâmetros da query string
   const searchParams = new URLSearchParams(location.search);
   const categoryQuery = searchParams.get('category');
   const promoQuery = searchParams.get('promo');
 
-  // Mapeamento reverso apenas para compatibilidade com promoções antigas
-  const categoryReverseMapping: { [key: string]: string } = {
-    'smartphone': 'Smartphones',
-    'headphone': 'Fones de ouvido',
-    'smartwatch': 'Dispositivos vestíveis',
-    'charger': 'Carregadores',
-    'assistant': 'Assistentes virtuais',
-    'customization': 'Customização'
-  };
+  const selectedCategory = useMemo(() => {
+    if (id) {
+      return categories.find(cat => cat.id === id)?.name || null;
+    }
+
+    if (categoryQuery) {
+      return categoryReverseMapping[categoryQuery] || categoryQuery;
+    }
+
+    return null;
+  }, [categoryQuery, id]);
+
+  const {
+    data: apiProducts,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore
+  } = usePaginatedProducts({
+    category: selectedCategory,
+    limit: 16
+  });
 
   // Função para adaptar produtos da API para o formato esperado pelo componente
   const adaptApiProduct = (apiProduct: any) => {
@@ -97,6 +121,25 @@ export const Products = () => {
   })();
 
   useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target || loading || loadingMore || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [filteredProducts.length, hasMore, loadMore, loading, loadingMore]);
+
+  useEffect(() => {
     // Determinar o título baseado no tipo de filtro
     if (id && categories.length > 0) {
       const category = categories.find(cat => cat.id === id);
@@ -132,7 +175,7 @@ export const Products = () => {
     }
   };
 
-  if (loading) {
+  if (loading && filteredProducts.length === 0) {
     return (
       <div className="mb-16 pt-40 lg:pt-0">
         <div className="container mx-auto">
@@ -149,7 +192,7 @@ export const Products = () => {
     );
   }
 
-  if (error) {
+  if (error && filteredProducts.length === 0) {
     return (
       <div className="mb-16 pt-40 lg:pt-0">
         <div className="container mx-auto">
@@ -183,6 +226,25 @@ export const Products = () => {
                   {filteredProducts?.map((product) => (
                     <Product product={product} key={product.id} />
                   ))}
+                </div>
+                <div ref={loadMoreRef} className="flex justify-center py-8">
+                  {loadingMore ? (
+                    <div className="text-sm uppercase text-gray-400">
+                      Carregando mais produtos...
+                    </div>
+                  ) : hasMore ? (
+                    <button
+                      type="button"
+                      onClick={loadMore}
+                      className="rounded-full border border-accent px-6 py-2 text-sm font-semibold uppercase text-accent transition hover:bg-accent hover:text-primary"
+                    >
+                      Carregar mais
+                    </button>
+                  ) : (
+                    <div className="text-sm uppercase text-gray-500">
+                      Você chegou ao fim da lista
+                    </div>
+                  )}
                 </div>
               </>
             ) : (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api } from '../services/api';
 import { logger } from '../utils/logger';
 
@@ -39,6 +39,17 @@ interface UseFetchResult {
   refetch: () => void;
 }
 
+interface PaginatedProductsResponse {
+  products: Product[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+interface UsePaginatedProductsOptions {
+  category?: string | null;
+  limit?: number;
+}
+
 export const useFetch = (endpoint: string): UseFetchResult => {
   const [data, setData] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,6 +85,93 @@ export const useFetch = (endpoint: string): UseFetchResult => {
 // 🆕 Hook específico para produtos
 export const useProducts = () => {
   return useFetch('/products');
+};
+
+export const usePaginatedProducts = ({
+  category,
+  limit = 16
+}: UsePaginatedProductsOptions = {}) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
+
+  const fetchPage = useCallback(async (cursor: string | null, replace: boolean) => {
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
+    try {
+      if (replace) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      setError(null);
+
+      const response = await api.get<PaginatedProductsResponse | Product[]>('/products', {
+        params: {
+          limit,
+          ...(cursor ? { cursor } : {}),
+          ...(category ? { category } : {})
+        }
+      });
+
+      if (requestId !== requestIdRef.current) return;
+
+      if (Array.isArray(response.data)) {
+        setProducts(response.data);
+        setNextCursor(null);
+        setHasMore(false);
+        return;
+      }
+
+      setProducts((currentProducts) => {
+        if (replace) return response.data.products;
+
+        const currentIds = new Set(currentProducts.map(product => product.id));
+        const nextProducts = response.data.products.filter(product => !currentIds.has(product.id));
+
+        return [...currentProducts, ...nextProducts];
+      });
+      setNextCursor(response.data.nextCursor);
+      setHasMore(response.data.hasMore);
+    } catch (err: any) {
+  logger.error('❌ Erro ao buscar produtos paginados:', err);
+      if (requestId === requestIdRef.current) {
+        setError(err.message || 'Erro ao carregar produtos');
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    }
+  }, [category, limit]);
+
+  useEffect(() => {
+    setProducts([]);
+    setNextCursor(null);
+    setHasMore(true);
+    fetchPage(null, true);
+  }, [fetchPage]);
+
+  const loadMore = useCallback(() => {
+    if (loading || loadingMore || !hasMore || !nextCursor) return;
+    fetchPage(nextCursor, false);
+  }, [fetchPage, hasMore, loading, loadingMore, nextCursor]);
+
+  return {
+    data: products,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore
+  };
 };
 
 // 🆕 Hook para produto específico
