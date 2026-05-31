@@ -40,6 +40,7 @@ interface IProduct {
   is_new: boolean;
   brand?: string;
   color?: string;
+  quantity?: number;
   amount?: number;
 }
 

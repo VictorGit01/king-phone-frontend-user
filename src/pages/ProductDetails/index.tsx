@@ -57,6 +57,7 @@ const adaptBackendProductDetails = (backendProduct: BackendProduct) => {
     is_new: true,
   brand: backendProduct.brand,
   color: backendProduct.color,
+  quantity: backendProduct.quantity,
   created_at: backendProduct.created_at,
     amount: 1, // 🆕 Adicionar amount padrão
   };

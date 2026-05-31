@@ -1,7 +1,7 @@
 import { FC, useContext, useEffect, useState } from "react";
 
 import { CartContext } from "../../contexts/CartContext";
-import { useProducts } from "../../hooks/useFetch";
+import { useProduct } from "../../hooks/useFetch";
 import { useToastContext } from "../../contexts/ToastContext";
 
 interface IProduct {
@@ -13,6 +13,7 @@ interface IProduct {
   category: string;
   category_id: string;
   is_new: boolean;
+  quantity?: number;
   amount?: number;
 }
 
@@ -21,13 +22,19 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
   setIsOpenPopUp,
 }) => {
   const { cart, setCart, setProductsAmount } = useContext(CartContext);
-  const { data: products } = useProducts();
+  const { product: latestProduct, loading: productLoading } = useProduct(product.id);
   const { showWarning } = useToastContext();
 
   const [amount, setAmount] = useState(product.amount);
 
   // Get current product stock from API
-  const currentProductStock = products?.find(p => p.id === product.id)?.quantity || 0;
+  const stockFromApi = latestProduct?.quantity;
+  const currentProductStock = stockFromApi ?? product.quantity;
+  const isStockLoading = currentProductStock === undefined && productLoading;
+  const isIncrementDisabled =
+    isStockLoading ||
+    currentProductStock === undefined ||
+    Number(amount) >= currentProductStock;
 
   useEffect(() => {
     cart.map((item) => {
@@ -38,6 +45,11 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
   }, [cart]);
 
   const incrementAmount = () => {
+    if (currentProductStock === undefined) {
+      showWarning("Ainda estamos carregando o estoque deste produto. Tente novamente em instantes.");
+      return;
+    }
+
     const newValue = Number(amount) + 1;
     if (newValue > currentProductStock) {
   showWarning(`Só temos ${currentProductStock} unidades disponíveis em estoque`);
@@ -87,14 +99,14 @@ export const Amount: FC<{ product: IProduct; setIsOpenPopUp: any }> = ({
         </span>
         <button
           onClick={incrementAmount}
-          disabled={Number(amount) >= currentProductStock}
+          disabled={isIncrementDisabled}
           className="px-3 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500 transition-colors text-white"
         >
           +
         </button>
       </div>
       <span className="text-xs text-gray-400">
-        Máx: {currentProductStock}
+        Máx: {isStockLoading ? "..." : currentProductStock ?? "?"}
       </span>
     </div>
   );
