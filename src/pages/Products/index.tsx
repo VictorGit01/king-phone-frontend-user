@@ -182,7 +182,7 @@ export const Products = () => {
           <div className="flex gap-x-[30px]">
             <CategoryNav />
             <main className="w-[100%]">
-              <div className="py-3 text-xl uppercase text-center">
+              <div className="min-h-[58vh] lg:min-h-[50vh] flex items-center justify-center py-8 text-xl uppercase text-center">
                 Carregando produtos...
               </div>
             </main>
@@ -199,7 +199,7 @@ export const Products = () => {
           <div className="flex gap-x-[30px]">
             <CategoryNav />
             <main className="w-[100%]">
-              <div className="py-3 text-xl uppercase text-center">
+              <div className="min-h-[58vh] lg:min-h-[50vh] flex items-center justify-center py-8 text-xl uppercase text-center">
                 Erro ao carregar produtos: {error}
               </div>
             </main>
@@ -249,7 +249,7 @@ export const Products = () => {
               </>
             ) : (
               /* Mensagem de nenhum produto - com mais altura em mobile */
-              <div className="flex flex-col items-center justify-center min-h-[60vh] lg:min-h-[40vh]">
+              <div className="flex flex-col items-center justify-center min-h-[68vh] lg:min-h-[52vh] px-4">
                 <div className="text-xl lg:text-2xl uppercase text-center text-gray-300 mb-4">
                   Nenhum produto encontrado
                 </div>

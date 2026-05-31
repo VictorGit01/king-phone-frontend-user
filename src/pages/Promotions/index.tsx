@@ -137,7 +137,7 @@ export const Promotions = () => {
     return (
       <div className="mb-16 pt-40 lg:pt-0">
         <div className="container mx-auto px-4">
-          <div className="py-8 text-xl uppercase text-center">
+          <div className="min-h-[58vh] lg:min-h-[50vh] flex items-center justify-center py-8 text-xl uppercase text-center">
             Carregando promoções...
           </div>
         </div>
@@ -160,7 +160,7 @@ export const Promotions = () => {
         </div>
 
         {activePromotions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[40vh]">
+          <div className="flex flex-col items-center justify-center min-h-[62vh] lg:min-h-[50vh] px-4 text-center">
             <div className="text-2xl text-gray-300 mb-4">😴</div>
             <div className="text-xl text-gray-300 mb-2">
               Nenhuma promoção ativa no momento

@@ -9,7 +9,7 @@ const Contatos: React.FC = () => {
     return (
       <div className="mb-16 pt-40 lg:pt-0">
         <div className="container mx-auto px-4">
-          <div className="py-8 text-xl uppercase text-center">
+          <div className="min-h-[58vh] lg:min-h-[50vh] flex items-center justify-center py-8 text-xl uppercase text-center">
             Carregando contatos...
           </div>
         </div>
@@ -21,7 +21,7 @@ const Contatos: React.FC = () => {
     return (
       <div className="mb-16 pt-40 lg:pt-0">
         <div className="container mx-auto px-4">
-          <div className="py-8 text-center">
+          <div className="min-h-[58vh] lg:min-h-[50vh] flex flex-col items-center justify-center py-8 text-center">
             <div className="text-red-500 text-xl mb-4">Erro ao carregar contatos</div>
             <p className="text-white/70">{error}</p>
           </div>
@@ -34,7 +34,7 @@ const Contatos: React.FC = () => {
     return (
       <div className="mb-16 pt-40 lg:pt-0">
         <div className="container mx-auto px-4">
-          <div className="py-8 text-center">
+          <div className="min-h-[58vh] lg:min-h-[50vh] flex items-center justify-center py-8 text-center">
             <div className="text-white/70 text-xl">Nenhum contato encontrado</div>
           </div>
         </div>

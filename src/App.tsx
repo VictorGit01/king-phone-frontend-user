@@ -15,10 +15,12 @@ import { ScrollToTop } from "./components/ScrollToTop";
 
 const Layout = () => {
   return (
-    <div>
-  <ScrollToTop />
+    <div className="min-h-screen flex flex-col">
+      <ScrollToTop />
       <Header />
-      <Outlet />
+      <main className="flex-1">
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );
@@ -41,7 +43,7 @@ const router = createBrowserRouter([
 
 const App = () => {
   return (
-    <div>
+    <div className="min-h-screen">
       <RouterProvider router={router} />
     </div>
   );
