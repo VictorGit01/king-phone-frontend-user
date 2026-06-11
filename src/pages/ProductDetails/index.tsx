@@ -158,71 +158,65 @@ export const ProductDetails = () => {
         {/* text */}
         <div className="flex flex-col lg:flex-row lg:items-start gap-[30px] mb-[30px]">
           <div className="flex-1 lg:max-w-[40%] w-full">
-            {/* Main Swiper */}
-            <div className="grad rounded-lg overflow-hidden">
-              <Swiper
-                modules={hasMultipleImages ? [Navigation, Pagination, Thumbs] : [Navigation, Pagination]}
-                spaceBetween={10}
-                navigation={hasMultipleImages}
-                pagination={hasMultipleImages ? { clickable: true } : false}
-                thumbs={
-                  hasMultipleImages
-                    ? { swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }
-                    : undefined
-                }
-                className="h-[400px]"
-              >
-                {productFiles.length > 0 ? (
-                  productFiles.map((file, index) => (
-                    <SwiperSlide key={index}>
-                      <div className="w-full h-full flex justify-center items-center p-6">
-                        <img
-                          src={file.url}
-                          className="w-full max-w-[65%] h-auto object-contain max-h-full"
-                          alt={`${product.title} - Imagem ${index + 1}`}
-                        />
-                      </div>
-                    </SwiperSlide>
-                  ))
-                ) : (
-                  <SwiperSlide>
-                    <div className="w-full h-full flex justify-center items-center p-6">
-                      <img
-                        src="/placeholder-image.jpg"
-                        className="w-full max-w-[65%] h-auto object-contain max-h-full"
-                        alt={product.title}
-                      />
-                    </div>
-                  </SwiperSlide>
-                )}
-              </Swiper>
-            </div>
-
-            {/* Thumbnails Swiper */}
-            {hasMultipleImages && (
-              <div className="w-full mt-4">
-                <Swiper
-                  modules={[Thumbs]}
-                  onSwiper={setThumbsSwiper}
-                  spaceBetween={10}
-                  slidesPerView={4}
-                  watchSlidesProgress
-                  className="h-[120px] w-full"
-                >
-                  {productFiles.map((file, index) => (
-                    <SwiperSlide key={index}>
-                      <div className="grad rounded-lg overflow-hidden cursor-pointer h-full">
-                        <div className="w-full h-full flex justify-center items-center p-3">
+            {hasMultipleImages ? (
+              <>
+                <div className="grad rounded-lg overflow-hidden">
+                  <Swiper
+                    modules={[Navigation, Pagination, Thumbs]}
+                    spaceBetween={10}
+                    navigation
+                    pagination={{ clickable: true }}
+                    thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                    className="h-[400px]"
+                  >
+                    {productFiles.map((file, index) => (
+                      <SwiperSlide key={index}>
+                        <div className="w-full h-full flex justify-center items-center p-6">
                           <img
                             src={file.url}
-                            className="w-full h-auto object-contain max-h-full"
-                            alt={`${product.title} - Thumbnail ${index + 1}`}
+                            className="w-full max-w-[65%] h-auto object-contain max-h-full"
+                            alt={`${product.title} - Imagem ${index + 1}`}
                           />
                         </div>
-                      </div>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+
+                <div className="w-full mt-4">
+                  <Swiper
+                    modules={[Thumbs]}
+                    onSwiper={setThumbsSwiper}
+                    spaceBetween={10}
+                    slidesPerView={4}
+                    watchSlidesProgress
+                    className="h-[120px] w-full"
+                  >
+                    {productFiles.map((file, index) => (
+                      <SwiperSlide key={index}>
+                        <div className="grad rounded-lg overflow-hidden cursor-pointer h-full">
+                          <div className="w-full h-full flex justify-center items-center p-3">
+                            <img
+                              src={file.url}
+                              className="w-full h-auto object-contain max-h-full"
+                              alt={`${product.title} - Thumbnail ${index + 1}`}
+                            />
+                          </div>
+                        </div>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </div>
+              </>
+            ) : (
+              <div className="grad rounded-lg overflow-hidden">
+                <div className="flex justify-center items-center p-6">
+                  <img
+                    src={productFiles[0]?.url || "/placeholder-image.jpg"}
+                    className="w-full max-w-[65%] h-auto object-contain"
+                    alt={product.title}
+                  />
+                </div>
               </div>
             )}
           </div>
