@@ -83,10 +83,19 @@ export const ProductDetails = () => {
     ? adaptBackendProductDetails(backendProduct)
     : null;
 
+  const productFiles = backendProduct?.files?.filter((file) => Boolean(file.url)) ?? [];
+  const hasMultipleImages = productFiles.length > 1;
+
   // Reset quantity when product changes
   useEffect(() => {
     setSelectedQuantity(1);
   }, [id]);
+
+  useEffect(() => {
+    if (!hasMultipleImages) {
+      setThumbsSwiper(null);
+    }
+  }, [hasMultipleImages, id]);
 
   // Functions to handle quantity
   const incrementQuantity = () => {
@@ -147,20 +156,24 @@ export const ProductDetails = () => {
     <div className="mb-16 pt-44 lg:pt-[30px] xl:pt-0">
       <div className="container mx-auto">
         {/* text */}
-        <div className="flex flex-col lg:flex-row gap-[30px] mb-[30px]">
-          <div className="flex-1 lg:max-w-[40%]">
+        <div className="flex flex-col lg:flex-row lg:items-start gap-[30px] mb-[30px]">
+          <div className="flex-1 lg:max-w-[40%] w-full">
             {/* Main Swiper */}
-            <div className="grad rounded-lg overflow-hidden mb-4">
+            <div className="grad rounded-lg overflow-hidden">
               <Swiper
-                modules={[Navigation, Pagination, Thumbs]}
+                modules={hasMultipleImages ? [Navigation, Pagination, Thumbs] : [Navigation, Pagination]}
                 spaceBetween={10}
-                navigation
-                pagination={{ clickable: true }}
-                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                navigation={hasMultipleImages}
+                pagination={hasMultipleImages ? { clickable: true } : false}
+                thumbs={
+                  hasMultipleImages
+                    ? { swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }
+                    : undefined
+                }
                 className="h-[400px]"
               >
-                {backendProduct?.files && backendProduct.files.length > 0 ? (
-                  backendProduct.files.map((file, index) => (
+                {productFiles.length > 0 ? (
+                  productFiles.map((file, index) => (
                     <SwiperSlide key={index}>
                       <div className="w-full h-full flex justify-center items-center p-6">
                         <img
@@ -186,8 +199,8 @@ export const ProductDetails = () => {
             </div>
 
             {/* Thumbnails Swiper */}
-            {backendProduct?.files && backendProduct.files.length > 1 && (
-              <div className="w-full">
+            {hasMultipleImages && (
+              <div className="w-full mt-4">
                 <Swiper
                   modules={[Thumbs]}
                   onSwiper={setThumbsSwiper}
@@ -196,7 +209,7 @@ export const ProductDetails = () => {
                   watchSlidesProgress
                   className="h-[120px] w-full"
                 >
-                  {backendProduct.files.map((file, index) => (
+                  {productFiles.map((file, index) => (
                     <SwiperSlide key={index}>
                       <div className="grad rounded-lg overflow-hidden cursor-pointer h-full">
                         <div className="w-full h-full flex justify-center items-center p-3">
