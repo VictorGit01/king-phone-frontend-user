@@ -156,18 +156,18 @@ export const ProductDetails = () => {
     <div className="mb-16 pt-44 lg:pt-[30px] xl:pt-0">
       <div className="container mx-auto">
         {/* text */}
-        <div className="flex flex-col lg:flex-row items-start gap-[30px] mb-[30px]">
-          <div className="w-full lg:w-[40%] lg:flex-none self-start">
+        <div className="flex flex-col lg:flex-row items-start lg:items-stretch gap-[30px] mb-[30px]">
+          <div className="w-full lg:w-[40%] lg:flex-none self-start lg:self-stretch flex flex-col">
             {hasMultipleImages ? (
               <>
-                <div className="grad rounded-lg overflow-hidden">
+                <div className="grad rounded-lg overflow-hidden flex-1 min-h-[280px] lg:min-h-0">
                   <Swiper
                     modules={[Navigation, Pagination, Thumbs]}
                     spaceBetween={10}
                     navigation
                     pagination={{ clickable: true }}
                     thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                    className="h-[400px]"
+                    className="h-full min-h-[280px]"
                   >
                     {productFiles.map((file, index) => (
                       <SwiperSlide key={index}>
@@ -183,7 +183,7 @@ export const ProductDetails = () => {
                   </Swiper>
                 </div>
 
-                <div className="w-full mt-4">
+                <div className="w-full mt-4 h-[120px] shrink-0">
                   <Swiper
                     modules={[Thumbs]}
                     onSwiper={setThumbsSwiper}
@@ -209,7 +209,7 @@ export const ProductDetails = () => {
                 </div>
               </>
             ) : (
-              <div className="grad rounded-lg overflow-hidden h-[400px]">
+              <div className="grad rounded-lg overflow-hidden h-[400px] lg:h-full lg:min-h-[400px]">
                 <div className="w-full h-full flex justify-center items-center p-6">
                   <img
                     src={productFiles[0]?.url || "/placeholder-image.jpg"}
