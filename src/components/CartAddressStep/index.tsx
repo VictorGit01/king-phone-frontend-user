@@ -7,6 +7,7 @@ import { ValueContext } from "../../contexts/ValueContext";
 import { Address, EMPTY_ADDRESS } from "../../types/address";
 import { formatWhatsApp, limitWhatsAppDigits } from "../../utils/formatWhatsApp";
 import { loadFromStorage, saveToStorage } from "../../utils/storage";
+import { trackWhatsAppClick } from "../../services/analytics";
 
 const ADDRESS_STORAGE_KEY = "kingphone:address:v1";
 const ORDER_PLACED_FLAG_KEY = "kingphone:orderPlaced";
@@ -18,7 +19,7 @@ type Props = {
 };
 
 export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) => {
-  const { total, originalTotal, discount, appliedPromotion, placeOrder } = useContext(CartContext);
+  const { total, originalTotal, discount, appliedPromotion, placeOrder, cart } = useContext(CartContext);
   const { formattedPrice } = useContext(ValueContext);
   const navigate = useNavigate();
 
@@ -100,8 +101,11 @@ export const CartAddressStep = ({ onBack, whatsappUrl, onOrderPlaced }: Props) =
   if (isSending) return;
   setIsSending(true);
 
-  // 1) Tenta abrir via <a target="_blank"> + click programático.
-  //    Em muitos browsers isso passa melhor pelos bloqueios de pop-up do que window.open.
+  trackWhatsAppClick("cart_checkout", {
+    value: total,
+    itemCount: cart.reduce((count, item) => count + (item.amount || 1), 0),
+  });
+
     const tryOpenByAnchorClick = (url: string): boolean => {
       try {
         const a = document.createElement("a");

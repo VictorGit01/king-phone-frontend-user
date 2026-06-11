@@ -1,6 +1,7 @@
 import { FaWhatsapp, FaInstagram } from "react-icons/fa6";
 import { IoLocationOutline } from "react-icons/io5";
 import { RiVipCrownLine } from "react-icons/ri";
+import { trackWhatsAppClick } from "../../services/analytics";
 
 export const Footer = () => {
   return (
@@ -47,7 +48,9 @@ export const Footer = () => {
           <a
             className="hover:text-white transition-all"
             target="_blank"
+            rel="noopener noreferrer"
             href="https://api.whatsapp.com/send/?phone=5561992854599&text&type=phone_number&app_absent=0"
+            onClick={() => trackWhatsAppClick("footer")}
           >
             <FaWhatsapp />
           </a>
@@ -69,6 +72,8 @@ export const Footer = () => {
             className="hover:text-white transition-all"
             href="https://chat.whatsapp.com/HlyNaZ3gQXm9kSF40NlNA2"
             target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackWhatsAppClick("footer_group")}
           >
             <RiVipCrownLine />
           </a>

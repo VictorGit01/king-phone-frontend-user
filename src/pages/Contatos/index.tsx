@@ -1,6 +1,7 @@
 import React from 'react';
 import { useContacts } from '../../hooks/useContacts';
 import { FaPhone, FaWhatsapp, FaEnvelope, FaMapMarkerAlt, FaClock, FaInstagram, FaFacebook, FaTwitter, FaYoutube } from 'react-icons/fa';
+import { trackWhatsAppClick } from '../../services/analytics';
 
 const Contatos: React.FC = () => {
   const { contacts, loading, error } = useContacts();
@@ -43,6 +44,7 @@ const Contatos: React.FC = () => {
   }
 
   const openWhatsApp = () => {
+    trackWhatsAppClick("contacts");
     const message = encodeURIComponent('Olá! Gostaria de saber mais sobre os produtos da King Phone.');
     window.open(`https://wa.me/${contacts.whatsapp.replace(/\D/g, '')}?text=${message}`, '_blank');
   };

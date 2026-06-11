@@ -4,6 +4,7 @@ import { usePromotions } from "../../hooks/useFetch";
 import { calculateIndividualDiscount } from "../../utils/calculateIndividualDiscount.ts";
 import { loadFromStorage, removeFromStorage, saveToStorage } from "../../utils/storage";
 import { logger } from "../../utils/logger";
+import { trackAddToCart as trackAddToCartEvent } from "../../services/analytics";
 
 const CART_STORAGE_KEY = "kingphone:cart:v1";
 
@@ -176,11 +177,31 @@ export const CartProvider = ({ children }: any) => {
       setCart(updatedCart);
       setIsOpen(true);
 
+      trackAddToCartEvent(
+        {
+          id: product.id,
+          title: product.title,
+          price: product.price,
+          category: product.category,
+        },
+        quantity
+      );
+
       return;
     }
 
     setCart([...cart, updatedProduct]);
     setIsOpen(true);
+
+    trackAddToCartEvent(
+      {
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        category: product.category,
+      },
+      quantity
+    );
   };
 
   const removeFromCart = (id: string) => {
