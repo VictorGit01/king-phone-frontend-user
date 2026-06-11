@@ -23,6 +23,9 @@ export const initAnalytics = () => {
   const script = document.createElement("script");
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+  script.onload = () => {
+    trackPageView(`${window.location.pathname}${window.location.search}`);
+  };
   document.head.appendChild(script);
 };
 
