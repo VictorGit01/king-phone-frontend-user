@@ -6,9 +6,6 @@ import "./index.css";
 import { CartProvider } from "./contexts/CartContext";
 import { ValueProvider } from "./contexts/ValueContext";
 import { ToastProvider } from "./contexts/ToastContext";
-import { initAnalytics } from "./services/analytics";
-
-initAnalytics();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
