@@ -12,11 +12,13 @@ import Contatos from "./pages/Contatos";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { GoogleAnalytics } from "./components/GoogleAnalytics";
 
 const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
+      <GoogleAnalytics />
       <Header />
       <main className="flex-1">
         <Outlet />
