@@ -1,11 +1,11 @@
-import { usePromotions, useProducts } from "../../hooks/useFetch";
+import { usePromotions, useAllPaginatedProducts } from "../../hooks/useFetch";
 import { Link } from "react-router-dom";
 import { categoryIdToName } from "../../utils/categoryMapping";
 import { logger } from "../../utils/logger";
 
 export const Promotions = () => {
   const { promotions, loading: promotionsLoading } = usePromotions();
-  const { data: products, loading: productsLoading } = useProducts();
+  const { data: products, loading: productsLoading } = useAllPaginatedProducts();
 
   // Função para adaptar produtos da API para o formato esperado pelo componente
   const adaptApiProduct = (apiProduct: any) => {

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { usePromotions } from './useFetch';
 import { logger } from '../utils/logger';
+import { promotionMatchesProductCategory } from '../utils/categoryMapping';
 
 interface CartItem {
   id: string;
@@ -37,22 +38,6 @@ export const usePromotionConflictDetector = (
       };
     }
 
-    // Mapeamento de categorias
-    const categoryMapping: { [key: string]: string[] } = {
-      'Smartphones': ['Smartphones', 'smartphone'],
-      'Fones de ouvido': ['Fones de ouvido', 'Fones de Ouvido', 'headphone'],
-      'Dispositivos vestíveis': ['Dispositivos vestíveis', 'smartwatch'],
-      'Carregadores': ['Carregadores', 'charger'],
-      'Assistentes virtuais': ['Assistentes virtuais', 'assistant'],
-      'Customização': ['Customização', 'customization']
-    };
-
-    const categoriesMatch = (promoCategory: string, productCategory: string) => {
-      if (promoCategory === productCategory) return true;
-      const mappedCategories = categoryMapping[promoCategory] || [];
-      return mappedCategories.includes(productCategory);
-    };
-
     // Encontrar promoção individual para este produto
     const individualPromotion = promotions.find(promo => 
       promo.active && 
@@ -66,7 +51,7 @@ export const usePromotionConflictDetector = (
       promo.active && 
       promo.promotion_type === 'buy_x_get_y' &&
       promo.target_category &&
-      categoriesMatch(promo.target_category, productCategory) &&
+      promotionMatchesProductCategory(promo.target_category, productCategory) &&
       promo.min_quantity &&
       promo.get_quantity
     );
@@ -112,7 +97,7 @@ export const usePromotionConflictDetector = (
     for (const quantityPromo of quantityPromotions) {
       // Filtrar itens da categoria da promoção
       const categoryItems = cartItems.filter(item => 
-        categoriesMatch(quantityPromo.target_category!, item.category)
+        promotionMatchesProductCategory(quantityPromo.target_category!, item.category)
       );
 
       const totalQuantity = categoryItems.reduce((sum, item) => sum + item.quantity, 0);

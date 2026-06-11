@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { usePromotions } from './useFetch';
 import { CartContext } from '../contexts/CartContext';
+import { promotionMatchesProductCategory } from '../utils/categoryMapping';
 
 interface PromotionDiscount {
   hasDiscount: boolean;
@@ -37,50 +38,11 @@ export const usePromotion = (productId: string, originalPrice: number, productCa
       return;
     }
 
-    // ✅ Remover verificação de conflito - sempre mostrar promoção individual na vitrine/detalhes    // Mapeamento de categorias para manter compatibilidade com promoções antigas
-    const categoryMapping: { [key: string]: string[] } = {
-      // Categorias principais (sincronizadas)
-      'Smartphones': ['Smartphones', 'smartphone'],
-      'Fones de ouvido': ['Fones de ouvido', 'Fones de Ouvido', 'headphone'],
-      'Dispositivos vestíveis': ['Dispositivos vestíveis', 'smartwatch'],
-      'Carregadores': ['Carregadores', 'charger'],
-      'Assistentes virtuais': ['Assistentes virtuais', 'assistant'],
-      'Customização': ['Customização', 'customization'],
-      
-      // Categorias legadas (para compatibilidade)
-      'smartphone': ['Smartphones', 'smartphone'],
-      'headphone': ['Fones de ouvido', 'Fones de Ouvido', 'headphone'],
-      'accessory': ['Acessórios', 'accessory'],
-      'speaker': ['Alto-falantes', 'speaker'],
-      'smartwatch': ['Dispositivos vestíveis', 'Smartwatches', 'smartwatch'],
-      'tablet': ['Tablets', 'tablet'],
-      'gaming': ['Gaming', 'gaming'],
-      'charger': ['Carregadores', 'charger'],
-      'assistant': ['Assistentes virtuais', 'assistant'],
-      'customization': ['Customização', 'customization']
-    };
-
-    // Função para verificar se uma categoria da promoção corresponde à categoria do produto
-    const categoriesMatch = (promoCategory: string, productCategory: string | undefined) => {
-      // Se não há categoria do produto, não há correspondência
-      if (!productCategory || !promoCategory) return false;
-      
-      // Correspondência direta
-      if (promoCategory === productCategory) return true;
-      
-      // Verificar mapeamento
-      const mappedCategories = categoryMapping[promoCategory] || [];
-      return mappedCategories.includes(productCategory);
-    };
-
-    // Buscar promoção ativa para este produto ou categoria
-    // ORDEM DE PRIORIDADE: 1. Produto específico, 2. Combo, 3. Categoria, 4. Condicional
-    // Buy X Get Y não aparece em produtos individuais, apenas no carrinho
     const activePromotion = promotions
       .filter(promo => {
         const isActive = promo.active;
         const matchesSingleProduct = promo.promotion_type === 'single_product' && promo.product_id === productId && promo.discount_percent > 0;
-        const matchesCategory = promo.promotion_type === 'category' && promo.target_category && categoriesMatch(promo.target_category, productCategory) && promo.discount_percent > 0;
+        const matchesCategory = promo.promotion_type === 'category' && promo.target_category && promotionMatchesProductCategory(promo.target_category, productCategory) && promo.discount_percent > 0;
         // Buy X Get Y é removido da aplicação individual - apenas carrinho
         const matchesCombo = promo.promotion_type === 'combo' && promo.combo_products?.includes(productId) && promo.discount_percent > 0;
         const matchesConditional = promo.promotion_type === 'conditional' && promo.discount_percent > 0;

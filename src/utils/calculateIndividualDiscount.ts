@@ -1,3 +1,5 @@
+import { promotionMatchesProductCategory } from "./categoryMapping";
+
 export interface PromotionLike {
   active: boolean;
   promotion_type: string;
@@ -17,33 +19,6 @@ export function calculateIndividualDiscount(
 ): { hasDiscount: boolean; discountedPrice: number; promotionTitle?: string } {
   if (!promotions || !productId) return { hasDiscount: false, discountedPrice: originalPrice };
 
-  // Mapeamento de categorias para manter compatibilidade com promoções antigas
-  const categoryMapping: { [key: string]: string[] } = {
-    Smartphones: ["Smartphones", "smartphone"],
-    "Fones de ouvido": ["Fones de ouvido", "Fones de Ouvido", "headphone"],
-    "Dispositivos vestíveis": ["Dispositivos vestíveis", "smartwatch"],
-    Carregadores: ["Carregadores", "charger"],
-    "Assistentes virtuais": ["Assistentes virtuais", "assistant"],
-    Customização: ["Customização", "customization"],
-    smartphone: ["Smartphones", "smartphone"],
-    headphone: ["Fones de ouvido", "Fones de Ouvido", "headphone"],
-    accessory: ["Acessórios", "accessory"],
-    speaker: ["Alto-falantes", "speaker"],
-    smartwatch: ["Dispositivos vestíveis", "Smartwatches", "smartwatch"],
-    tablet: ["Tablets", "tablet"],
-    gaming: ["Gaming", "gaming"],
-    charger: ["Carregadores", "charger"],
-    assistant: ["Assistentes virtuais", "assistant"],
-    customization: ["Customização", "customization"],
-  };
-
-  const categoriesMatch = (promoCategory: string, pCategory: string | undefined) => {
-    if (!pCategory || !promoCategory) return false;
-    if (promoCategory === pCategory) return true;
-    const mapped = categoryMapping[promoCategory] || [];
-    return mapped.includes(pCategory);
-  };
-
   const activePromotion = promotions
     .filter((promo) => {
       const isActive = promo.active;
@@ -52,7 +27,7 @@ export function calculateIndividualDiscount(
       const matchesCategory =
         promo.promotion_type === "category" &&
         promo.target_category &&
-        categoriesMatch(promo.target_category, productCategory) &&
+        promotionMatchesProductCategory(promo.target_category, productCategory) &&
         promo.discount_percent > 0;
       const matchesCombo =
         promo.promotion_type === "combo" && promo.combo_products?.includes(productId) && promo.discount_percent > 0;

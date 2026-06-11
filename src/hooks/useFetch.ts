@@ -174,6 +174,29 @@ export const usePaginatedProducts = ({
   };
 };
 
+export const useAllPaginatedProducts = (pageSize = 50) => {
+  const {
+    data,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    loadMore
+  } = usePaginatedProducts({ limit: pageSize });
+
+  useEffect(() => {
+    if (!loading && !loadingMore && hasMore) {
+      loadMore();
+    }
+  }, [data.length, hasMore, loadMore, loading, loadingMore]);
+
+  return {
+    data,
+    loading: loading || loadingMore || hasMore,
+    error
+  };
+};
+
 // 🆕 Hook para produto específico
 export const useProduct = (id: string) => {
   const [product, setProduct] = useState<Product | null>(null);

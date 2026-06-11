@@ -5,18 +5,9 @@ import { CategoryNav } from "../../components/CategoryNav";
 import { Product } from "../../components/Product";
 
 import { usePaginatedProducts } from "../../hooks/useFetch";
-import { categories } from "../../database/categories";
+import { categories, getCategoryDbName } from "../../database/categories";
 import { logger } from "../../utils/logger";
-
-// Mapeamento reverso apenas para compatibilidade com promoções antigas
-const categoryReverseMapping: { [key: string]: string } = {
-  'smartphone': 'Smartphones',
-  'headphone': 'Fones de ouvido',
-  'smartwatch': 'Dispositivos vestíveis',
-  'charger': 'Carregadores',
-  'assistant': 'Assistentes virtuais',
-  'customization': 'Customização'
-};
+import { normalizeCategory, productMatchesCategory } from "../../utils/categoryMapping";
 
 export const Products = () => {
   const [title, setTitle] = useState("");
@@ -35,7 +26,7 @@ export const Products = () => {
     }
 
     if (categoryQuery) {
-      return categoryReverseMapping[categoryQuery] || categoryQuery;
+      return normalizeCategory(categoryQuery);
     }
 
     return null;
@@ -49,7 +40,7 @@ export const Products = () => {
     hasMore,
     loadMore
   } = usePaginatedProducts({
-    category: selectedCategory,
+    category: selectedCategory ? getCategoryDbName(selectedCategory) : null,
     limit: 16
   });
 
@@ -87,28 +78,17 @@ export const Products = () => {
     if (id) {
       const category = categories.find(cat => cat.id === id);
       if (category) {
-        products = products.filter(product => product.category === category.name);
+        products = products.filter((product) =>
+          productMatchesCategory(product.category, category.name)
+        );
       }
-    }
-    
-    // Filtro por categoria da query string (?category=...)
-    else if (categoryQuery) {
-  logger.debug('🔍 Filtrando produtos por categoria query:', categoryQuery);
-      products = products.filter(product => {
-        // Correspondência direta (agora sincronizada)
-        if (product.category === categoryQuery) {
-          return true;
-        }
-        
-        // Compatibilidade com categorias antigas
-        const mappedCategory = categoryReverseMapping[categoryQuery];
-        if (mappedCategory && product.category === mappedCategory) {
-          return true;
-        }
-        
-        return false;
-      });
-  logger.debug('🎯 Produtos filtrados encontrados:', products.length);
+    } else if (categoryQuery) {
+      const normalizedCategory = normalizeCategory(categoryQuery);
+      logger.debug('🔍 Filtrando produtos por categoria query:', normalizedCategory);
+      products = products.filter((product) =>
+        productMatchesCategory(product.category, normalizedCategory)
+      );
+      logger.debug('🎯 Produtos filtrados encontrados:', products.length);
     }
 
     // Filtros adicionais baseados em tipo de promoção

@@ -3,14 +3,14 @@ import { useLocation } from "react-router-dom";
 
 import { CategoryNav } from "../../components/CategoryNav";
 import { Product } from "../../components/Product";
-import { useProducts } from "../../hooks/useFetch";
+import { useAllPaginatedProducts } from "../../hooks/useFetch";
 
 export const Search = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const searchTerm = (searchParams.get("query") ?? "").trim();
 
-  const { data: products, loading, error } = useProducts();
+  const { data: products, loading, error } = useAllPaginatedProducts();
 
   const filteredProducts = useMemo(() => {
     if (!products || !searchTerm) return [];

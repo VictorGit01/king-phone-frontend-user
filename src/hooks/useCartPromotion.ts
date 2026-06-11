@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { usePromotions } from './useFetch';
 import { logger } from '../utils/logger';
+import { promotionMatchesProductCategory } from '../utils/categoryMapping';
 
 interface CartPromotionResult {
   promotionApplied: boolean;
@@ -56,22 +57,6 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
 
   logger.debug('🛒 Calculando promoções do carrinho:', { cartItems, promotions });
 
-    // Mapeamento de categorias
-    const categoryMapping: { [key: string]: string[] } = {
-      'Smartphones': ['Smartphones', 'smartphone'],
-      'Fones de ouvido': ['Fones de ouvido', 'Fones de Ouvido', 'headphone'],
-      'Dispositivos vestíveis': ['Dispositivos vestíveis', 'smartwatch'],
-      'Carregadores': ['Carregadores', 'charger'],
-      'Assistentes virtuais': ['Assistentes virtuais', 'assistant'],
-      'Customização': ['Customização', 'customization']
-    };
-
-    const categoriesMatch = (promoCategory: string, productCategory: string) => {
-      if (promoCategory === productCategory) return true;
-      const mappedCategories = categoryMapping[promoCategory] || [];
-      return mappedCategories.includes(productCategory);
-    };
-
     const originalTotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   logger.debug('💰 Subtotal original calculado:', { 
       originalTotal, 
@@ -104,7 +89,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
 
       // Agrupar itens por categoria primeiro
       const categoryItems = cartItems.filter(item => 
-        categoriesMatch(promo.target_category!, item.category)
+        promotionMatchesProductCategory(promo.target_category!, item.category)
       );
 
   logger.debug('📦 Itens da categoria:', { 
@@ -216,7 +201,7 @@ export const useCartPromotion = (cartItems: CartItem[]): CartPromotionResult => 
 
       if (promo.promotion_type === 'category' && promo.target_category) {
         const categoryItems = cartItems.filter(item => 
-          categoriesMatch(promo.target_category!, item.category)
+          promotionMatchesProductCategory(promo.target_category!, item.category)
         );
         savings = categoryItems.reduce((sum, item) => 
           sum + (item.price * item.quantity * promo.discount_percent / 100), 0

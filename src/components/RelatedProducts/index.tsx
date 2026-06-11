@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
 import { ProductSlider } from "../ProductSlider";
-import { useProducts } from "../../hooks/useFetch";
+import { usePaginatedProducts } from "../../hooks/useFetch";
 
 interface IRelatedProducts {
   category: string;
@@ -34,7 +33,6 @@ interface AdaptedProduct {
   is_new: boolean;
 }
 
-// Função para adaptar produtos do backend
 const adaptBackendProduct = (backendProduct: BackendProduct): AdaptedProduct => {
   return {
     id: backendProduct.id,
@@ -43,27 +41,21 @@ const adaptBackendProduct = (backendProduct: BackendProduct): AdaptedProduct => 
     price: backendProduct.price,
     image_url: backendProduct.files?.[0]?.url || "/placeholder-image.jpg",
     category: backendProduct.category,
-    is_new: true, // Todos são considerados novos por padrão
+    is_new: true,
   };
 };
 
 export const RelatedProducts = ({ category, currentProductId }: IRelatedProducts) => {
-  const { data: backendProducts, loading, error } = useProducts();
-  const [relatedProducts, setRelatedProducts] = useState<AdaptedProduct[]>([]);
+  const { data: backendProducts, loading, error } = usePaginatedProducts({
+    category,
+    limit: 8,
+  });
 
-  useEffect(() => {
-    if (backendProducts && backendProducts.length > 0) {
-      // Filtrar produtos da mesma categoria, excluindo o produto atual
-      const filtered = backendProducts
-        .filter((product: BackendProduct) => 
-          product.category === category && product.id !== currentProductId
-        )
-        .slice(0, 8) // Limitar a 8 produtos relacionados
-        .map(adaptBackendProduct);
-      
-      setRelatedProducts(filtered);
-    }
-  }, [backendProducts, category, currentProductId]);
+  const relatedProducts =
+    backendProducts
+      ?.filter((product: BackendProduct) => product.id !== currentProductId)
+      .slice(0, 8)
+      .map(adaptBackendProduct) || [];
 
   if (loading) {
     return (
@@ -92,7 +84,7 @@ export const RelatedProducts = ({ category, currentProductId }: IRelatedProducts
   }
 
   if (relatedProducts.length === 0) {
-    return null; // Esconde a seção completamente quando não há produtos
+    return null;
   }
 
   return (
