@@ -156,8 +156,8 @@ export const ProductDetails = () => {
     <div className="mb-16 pt-44 lg:pt-[30px] xl:pt-0">
       <div className="container mx-auto">
         {/* text */}
-        <div className="flex flex-col lg:flex-row lg:items-start gap-[30px] mb-[30px]">
-          <div className="flex-1 lg:max-w-[40%] w-full">
+        <div className="flex flex-col lg:flex-row items-start gap-[30px] mb-[30px]">
+          <div className="w-full lg:w-[40%] lg:flex-none self-start">
             {hasMultipleImages ? (
               <>
                 <div className="grad rounded-lg overflow-hidden">
@@ -209,18 +209,18 @@ export const ProductDetails = () => {
                 </div>
               </>
             ) : (
-              <div className="grad rounded-lg overflow-hidden">
-                <div className="flex justify-center items-center p-6">
+              <div className="grad rounded-lg overflow-hidden h-[400px]">
+                <div className="w-full h-full flex justify-center items-center p-6">
                   <img
                     src={productFiles[0]?.url || "/placeholder-image.jpg"}
-                    className="w-full max-w-[65%] h-auto object-contain"
+                    className="w-full max-w-[65%] h-auto object-contain max-h-full"
                     alt={product.title}
                   />
                 </div>
               </div>
             )}
           </div>
-          <div className="flex-1 bg-primary p-12 xl:p-20 rounded-lg flex flex-col justify-center">
+          <div className="flex-1 min-w-0 bg-primary p-12 xl:p-20 rounded-lg flex flex-col justify-center">
             {/* category title */}
             <div className="uppercase text-accent text-lg font-medium mb-2">
               {product.category}
